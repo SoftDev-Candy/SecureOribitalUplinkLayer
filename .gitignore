@@ -1,0 +1,37 @@
+# CLion / IntelliJ project files
+.idea/
+*.iml
+
+# CMake build directories
+cmake-build-*/
+build/
+out/
+
+# Compiled object files
+*.o
+*.obj
+*.lo
+*.la
+*.lai
+
+# Executables
+*.exe
+*.out
+*.app
+*.a
+*.so
+*.dll
+*.dylib
+
+# Debug files
+*.pdb
+*.ilk
+
+# OS-specific junk
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp
+*.swp
