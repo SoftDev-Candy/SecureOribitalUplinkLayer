@@ -34,7 +34,7 @@ int main()
         return 1;
 
     }
-union
+
 
     return 0;
 }
