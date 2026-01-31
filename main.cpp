@@ -1,40 +1,60 @@
 #include<iostream>
-#include <boost/asio.hpp>
+#include<boost/asio.hpp>
+#include<array>
 
-//Step-2 Defining the TCP type shortcut so we dont have to keep calling it.
+//Defining the TCP-Type Shortcut so we don't have to do keep calling it //
 using boost::asio::ip::tcp;
 
 int main()
 {
-    //TODO : Figure out, how to work with error codes in Boost::asio
     try {
-        //Step -1 Create I/O context(Think of this as "I/O Engine")
-        boost::asio::io_context io_context; //basically hides all the boost specific things
+        //Basically the I/O Engine for boost.
+        boost::asio::io_context io_context;
 
-        //Step-3 Create an endpoint by basically giving a string to get converted into something it understands//
-        unsigned short PORT = 5000;
-        tcp::endpoint endpoint(boost::asio::ip::make_address("127.0.0.1"), PORT);
+        //Create a card to show this is where I am and this is what I would like to use .
+        unsigned short int PORT = 5000;
+        tcp::endpoint endpoint(boost::asio::ip::make_address("127.0.0.1"),PORT);
 
-        //  //Create a socket here //
-        // tcp::socket socket(io_context);
-        //
-        //  //Step-5 ask the socket to try and connect to someting
-        //  socket.connect()
-        //
+        //Create a acceptor to start connection request if sent //
+        tcp::acceptor acceptor(io_context,endpoint);
 
-        //Step-5 Create a acceptor I dont know what this  but I need to bound to that enddpoint
-        tcp::acceptor acceptor(io_context , endpoint);
+        //Adding a Optional check below //
+        tcp::endpoint local = acceptor.local_endpoint();
+        std::cout<<"Server is listening on: "<<local.address().to_string()<< " : "<<local.port()<<std::endl;
 
+        //Create a socket here//
         tcp::socket socket(io_context);
 
-        std::cout<<"Server Bound to 127.0.0.1: "<<PORT<<std::endl;
+        std::cout<<"Server is waiting to connect : "<<std::endl;
+
+        //Make the acceptor wait till Client connects//
+        acceptor.accept(socket);
+
+        //Make an optional check here to see if the which client has connected from their address and port//
+        tcp::endpoint remote = socket.remote_endpoint();
+        std::cout<<"The cliented is connected from "<<remote.address().to_string()<<" : "<<remote.port()<<std::endl;
+
+        //Let's Read some data from the client make a buffer to store data//
+        std::array<char , 1024>buffer{};
+
+        //Create a block to wait for some bytes to arrive if they don't connection will close//
+        std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer));
+
+        std::cout<<"Bytes read : "<<bytes_read<<std::endl;
+
+        //Turns raw bytes into a std::string for easy printing //
+        std::string message (buffer.data(), bytes_read);
+        std::cout<<"And the message is: "<<message<<std::endl;
+
+        return 0;
+
 
     }catch(std::exception& e) {
-        std::cerr<<e.what()<<std::endl;
-        return 1;
+        std::cout<<e.what()<<std::endl;
 
+    return 1;
     }
 
 
-    return 0;
+
 }
