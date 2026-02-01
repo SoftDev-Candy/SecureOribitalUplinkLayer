@@ -5,10 +5,6 @@
 //Defining the TCP-Type Shortcut so we don't have to do keep calling it //
 using boost::asio::ip::tcp;
 
-
-
-
-
 int main()
 {
     try {
