@@ -5,6 +5,10 @@
 //Defining the TCP-Type Shortcut so we don't have to do keep calling it //
 using boost::asio::ip::tcp;
 
+
+
+
+
 int main()
 {
     try {
@@ -45,6 +49,10 @@ int main()
         //Turns raw bytes into a std::string for easy printing //
         std::string message (buffer.data(), bytes_read);
         std::cout<<"And the message is: "<<message<<std::endl;
+
+        //Now lets try and echo from the server back into the client//
+        boost::asio::write(socket,boost::asio::buffer(message));
+        std::cout<<"The server Echoed the message "<<std::endl<<message<<std::endl;
 
         return 0;
 
