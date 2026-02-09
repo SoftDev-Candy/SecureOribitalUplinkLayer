@@ -43,6 +43,8 @@ void HandleClient(tcp::socket& socket)
     boost::asio::write(socket,boost::asio::buffer(message));
     std::cout<<"The server Echoed the message "<<std::endl<<message<<std::endl;
 
+    std::cin.get();//Stops the code so I can see how the network works using ss -tln
+
 }
 
 

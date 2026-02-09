@@ -11,8 +11,10 @@ using boost::asio::ip::tcp;
 void HandleConnection (boost::asio::ip::tcp::socket& socket)
 {
 
-    std::string message = "HELLO TO YOUR MOTHER\n";
-    std::cout<<message<<std::endl;
+    std::string message;
+    std::cout<<"Type you're message : "<<std::endl;
+
+    std::getline(std::cin,message);
 
     boost::asio::write(socket, boost::asio::buffer(message));
     std::cout<<"The client sent the message"<<std::endl;
