@@ -11,25 +11,30 @@ using boost::asio::ip::tcp;
 void HandleConnection (boost::asio::ip::tcp::socket& socket)
 {
 
-    std::string message;
-    std::cout<<"Type you're message : "<<std::endl;
 
-    std::getline(std::cin,message);
+    while (true)
+        {
+        std::string message;
+        std::cout<<"Type you're message : "<<std::endl;
 
-    boost::asio::write(socket, boost::asio::buffer(message));
-    std::cout<<"The client sent the message"<<std::endl;
+        std::getline(std::cin,message);
 
-    //Creating buffer to read what the server echo's back//
-    std::array<char , 1024>buffer{};
+        boost::asio::write(socket, boost::asio::buffer(message));
+        std::cout<<"The client sent the message"<<std::endl;
 
-    //Creating a block and waiting for the server to send some bytes//
-    std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer));
+        //Creating buffer to read what the server echo's back//
+        std::array<char , 1024>buffer{};
+        //Creating a block and waiting for the server to send some bytes//
+        std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer));
 
-    std::string ServerMessage(buffer.data(), bytes_read);
-    std::cout<<"The client received the message"<<std::endl;
+        if (bytes_read == 0) break;
 
-    std::cout << "The client received the message: "
-              << ServerMessage << std::endl;
+        std::string ServerMessage(buffer.data(), bytes_read);
+        std::cout<<"The client received the message"<<std::endl;
+
+        std::cout << "The client received the message: "
+                  << ServerMessage << std::endl;
+    }
 
 }
 

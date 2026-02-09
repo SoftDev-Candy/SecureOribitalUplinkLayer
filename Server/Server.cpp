@@ -27,23 +27,31 @@ void HandleClient(tcp::socket& socket)
     tcp::endpoint remote = socket.remote_endpoint();
     std::cout<<"The cliented is connected from "<<remote.address().to_string()<<" : "<<remote.port()<<std::endl;
 
-    //Let's Read some data from the client make a buffer to store data//
-    std::array<char , 1024>buffer{};
 
-    //Create a block to wait for some bytes to arrive if they don't connection will close//
-    std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer));
+    while (true) {
+        //Let's Read some data from the client make a buffer to store data//
+        std::array<char , 1024>buffer{};
 
-    std::cout<<"Bytes read : "<<bytes_read<<std::endl;
+        //Create a block to wait for some bytes to arrive if they don't connection will close//
+        std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer));
 
-    //Turns raw bytes into a std::string for easy printing //
-    std::string message (buffer.data(), bytes_read);
-    std::cout<<"And the message is: "<<message<<std::endl;
+        if (bytes_read == 0)
+        {
+            std::cout<<"Buffer returned empty -> Client disconnected"<<std::endl;
+            break;
+        }
+        std::cout<<"Bytes read : "<<bytes_read<<std::endl;
 
-    //Now lets try and echo from the server back into the client//
-    boost::asio::write(socket,boost::asio::buffer(message));
-    std::cout<<"The server Echoed the message "<<std::endl<<message<<std::endl;
+        //Turns raw bytes into a std::string for easy printing //
+        std::string message (buffer.data(), bytes_read);
+        std::cout<<"And the message is: "<<message<<std::endl;
 
-    std::cin.get();//Stops the code so I can see how the network works using ss -tln
+        //Now lets try and echo from the server back into the client//
+        boost::asio::write(socket,boost::asio::buffer(message));
+        std::cout<<"The server Echoed the message "<<std::endl<<message<<std::endl;
+
+    }
+    //std::cin.get();//Stops the code so I can see how the network works using ss -tln
 
 }
 
