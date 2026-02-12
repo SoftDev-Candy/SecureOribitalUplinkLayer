@@ -10,14 +10,16 @@ using boost::asio::ip::tcp;
 
 void HandleConnection (boost::asio::ip::tcp::socket& socket)
 {
-
-
     while (true)
-        {
+    {
         std::string message;
         std::cout<<"Type you're message : "<<std::endl;
 
         std::getline(std::cin,message);
+        if (message == "exit")
+        {
+            std::cout<<"Exiting Client"<<std::endl;
+        }
 
         boost::asio::write(socket, boost::asio::buffer(message));
         std::cout<<"The client sent the message"<<std::endl;
@@ -30,10 +32,9 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
         if (bytes_read == 0) break;
 
         std::string ServerMessage(buffer.data(), bytes_read);
-        std::cout<<"The client received the message"<<std::endl;
 
-        std::cout << "The client received the message: "
-                  << ServerMessage << std::endl;
+
+        std::cout << "The Server received and echoed the message: "<< ServerMessage << std::endl;
     }
 
 }
@@ -53,7 +54,7 @@ int main()
 
         socket.connect(endpoint);
 
-HandleConnection(socket);
+        HandleConnection(socket);
 
     }catch(std::exception& e)
     {
@@ -61,5 +62,5 @@ HandleConnection(socket);
 
     }
 
-return 1;
+    return 1;
 }
