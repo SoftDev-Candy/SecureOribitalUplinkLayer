@@ -46,9 +46,18 @@ void HandleClient(tcp::socket& socket)
         }
         std::cout<<"Bytes read : "<<bytes_read<<std::endl;
 
+
         //Turns raw bytes into a std::string for easy printing //
         std::string message (buffer.data(), bytes_read);
+
+        if (message == "exit") {
+            std::cout << "Client requested exit. Closing connection.\n";
+            break; // don't echo "exit" back, just close
+        }
+
         std::cout<<"And the message is: "<<message<<std::endl;
+
+
 
         //Now lets try and echo from the server back into the client//
         boost::asio::write(socket,boost::asio::buffer(message));
