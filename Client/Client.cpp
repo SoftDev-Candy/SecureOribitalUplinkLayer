@@ -16,9 +16,24 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
         std::cout<<"Type you're message : "<<std::endl;
 
         std::getline(std::cin,message);
+        //Handling EOF as well(ctrl+D)
+        if (!std::cin)
+        {
+        std::cout<<"Client : Input Stream closed , exiting " <<std::endl;
+            break;
+        }
+
         if (message == "exit")
         {
             std::cout<<"Exiting Client"<<std::endl;
+            break;
+        }
+
+        //if message empty() skip
+        if(message.empty())
+        {
+            std::cout<<"Message is empty"<<std::endl;
+            continue;
         }
 
         boost::asio::write(socket, boost::asio::buffer(message));
@@ -48,7 +63,7 @@ int main()
 
         tcp::endpoint endpoint(boost::asio::ip::make_address("127.0.0.1"),PORT);
 
-        //Create a ssocket
+        //Create a socket
 
         tcp::socket socket(io_context);
 
