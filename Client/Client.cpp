@@ -71,11 +71,12 @@ int main()
 
         HandleConnection(socket);
 
+        return 0; // success
+
     }catch(std::exception& e)
     {
         std::cout<<e.what()<<std::endl;
-
+        return 1; //Error
     }
 
-    return 1;
 }
