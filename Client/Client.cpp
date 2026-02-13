@@ -32,7 +32,7 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
         //if message empty() skip
         if(message.empty())
         {
-            std::cout<<"Message is empty"<<std::endl;
+            std::cout<<"Message is empty"<<std:: endl;
             continue;
         }
 
