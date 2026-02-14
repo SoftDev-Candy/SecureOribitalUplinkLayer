@@ -43,6 +43,18 @@ void HandleClient(tcp::socket& socket)
 
         //TODO - Handle EOF here as it's shutting the server down due to read_some : End of File//
 
+        if (error == boost::asio::error::eof)
+        {
+        std::cout<<"Server: Client Disconnected cleanly(EOF)"<<std::endl;
+        break;//Normal Disconnection Expected
+        }
+
+        if (error)
+        {
+            std::cout<<"Server : Error reading from socket"<<std::endl;
+            break;//Some other error Stop handling this client
+        }
+
         if (bytes_read == 0)
         {
             std::cout<<"Buffer returned empty -> Client disconnected"<<std::endl;
