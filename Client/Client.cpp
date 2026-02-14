@@ -48,7 +48,6 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
 
         std::string ServerMessage(buffer.data(), bytes_read);
 
-
         std::cout << "The Server received and echoed the message: "<< ServerMessage << std::endl;
     }
 

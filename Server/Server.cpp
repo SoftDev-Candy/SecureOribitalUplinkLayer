@@ -9,9 +9,9 @@
 //Defining the TCP-Type Shortcut so we don't have to do keep calling it //
 using boost::asio::ip::tcp;
 
-tcp::acceptor create_tcp_acceptor(boost::asio::io_context& io_context ,
-    unsigned short int PORT)
+tcp::acceptor create_tcp_acceptor(boost::asio::io_context& io_context ,unsigned short int PORT)
 {
+
     tcp::endpoint endpoint(boost::asio::ip::make_address("127.0.0.1"),PORT);
 
     //Create a acceptor to start connection request if sent //
@@ -31,13 +31,17 @@ void HandleClient(tcp::socket& socket)
     tcp::endpoint remote = socket.remote_endpoint();
     std::cout<<"The cliented is connected from "<<remote.address().to_string()<<" : "<<remote.port()<<std::endl;
 
-
     while (true) {
         //Let's Read some data from the client make a buffer to store data//
         std::array<char , 1024>buffer{};
 
+        //Adding error code here because of EOF so we overload instead of throw.
+        boost::system::error_code error;
+
         //Create a block to wait for some bytes to arrive if they don't connection will close//
-        std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer));
+        std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer) , error);
+
+        //TODO - Handle EOF here as it's shutting the server down due to read_some : End of File//
 
         if (bytes_read == 0)
         {
@@ -46,18 +50,17 @@ void HandleClient(tcp::socket& socket)
         }
         std::cout<<"Bytes read : "<<bytes_read<<std::endl;
 
-
         //Turns raw bytes into a std::string for easy printing //
         std::string message (buffer.data(), bytes_read);
 
-        if (message == "exit") {
+        if (message == "exit")
+        {
             std::cout << "Client requested exit. Closing connection.\n";
             break; // don't echo "exit" back, just close
         }
 
+
         std::cout<<"And the message is: "<<message<<std::endl;
-
-
 
         //Now lets try and echo from the server back into the client//
         boost::asio::write(socket,boost::asio::buffer(message));
@@ -67,7 +70,6 @@ void HandleClient(tcp::socket& socket)
     //std::cin.get();//Stops the code so I can see how the network works using ss -tln
 
 }
-
 
 int main()
 {
@@ -79,17 +81,31 @@ int main()
         unsigned short int PORT = 5000;
         tcp::acceptor acceptor = create_tcp_acceptor(io_context,PORT);
 
+        uint64_t clientCount = 0;
+        //While to ensure the server can loop to create place for more clients
+        while (true) {
+            //Create a socket here//
+            tcp::socket socket(io_context);
 
-        //Create a socket here//
-        tcp::socket socket(io_context);
+            if (clientCount == 0)
+            {
+                std::cout<<" Server is waiting to connect "<<std::endl;
+            }
+            else
+            {
+                std::cout<<" Server: waiting for a new client...ClientNum :  "<<clientCount<<std::endl;
+            }
 
-        std::cout<<"Server is waiting to connect : "<<std::endl;
+            //Make the acceptor wait till Client connects//
+            acceptor.accept(socket);
 
-        //Make the acceptor wait till Client connects//
-        acceptor.accept(socket);
+            //call the client server
+            HandleClient(socket);
 
-        //call the client server
-        HandleClient(socket);
+            clientCount++;
+
+            std::cout<<"Client Connected Successfully ! ... "<<std::endl;
+        }
 
         return 0;
 
