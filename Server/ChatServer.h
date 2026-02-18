@@ -11,11 +11,10 @@
 
 using boost::asio::ip::tcp;
 
-
 class ChatServer
 {
 public:
-    ChatServer( std::string add , unsigned short int P );
+    ChatServer( std::string add , unsigned short int port_i );
     void RunServer();
     void HandleClient(tcp::socket& socket);
 
@@ -28,11 +27,6 @@ private:
      uint_fast64_t clientCount = 0 ;
     std::string address;
     unsigned short int PORT;
-
-
-
-
-
 
 };
 

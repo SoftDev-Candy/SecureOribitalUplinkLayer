@@ -4,11 +4,11 @@
 
 #include "ChatServer.h"
 
-ChatServer::ChatServer(std::string add, unsigned short int P)
+ChatServer::ChatServer(std::string add, unsigned short int port_i)
     :io_context(),
      acceptor(io_context),
      address(std::move(add)),
-     PORT(P)
+     PORT(port_i)
 {
     acceptor = create_tcp_acceptor();
 }
@@ -31,6 +31,8 @@ void ChatServer::RunServer()
 
         //Make the acceptor wait till Client connects//
         acceptor.accept(socket);
+
+        //TODO - WRAP THIS INSIDE A THREAD
 
         //call the client server
         HandleClient(socket);
