@@ -16,7 +16,7 @@ class ChatServer
 public:
     ChatServer( std::string add , unsigned short int port_i );
     void RunServer();
-    void HandleClient(tcp::socket& socket);
+    void HandleClient(tcp::socket &socket);
 
 private:
     tcp::acceptor create_tcp_acceptor();

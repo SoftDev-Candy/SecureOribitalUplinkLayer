@@ -2,7 +2,10 @@
 // Created by Candy on 2/16/26.
 //
 
+#include<thread>
 #include "ChatServer.h"
+
+using boost::asio::ip::tcp;
 
 ChatServer::ChatServer(std::string add, unsigned short int port_i)
     :io_context(),
@@ -16,7 +19,8 @@ ChatServer::ChatServer(std::string add, unsigned short int port_i)
 void ChatServer::RunServer()
 {
     //While to ensure the server can loop to create place for more clients
-    while (true) {
+    while (true)
+    {
         //Create a socket here//
         tcp::socket socket(io_context);
 
@@ -34,9 +38,15 @@ void ChatServer::RunServer()
 
         //TODO - WRAP THIS INSIDE A THREAD
 
-        //call the client server
-        HandleClient(socket);
-
+        std::thread ClientThread(
+            [this](tcp::socket s)
+            {
+                //call the client server
+                HandleClient(s);
+            },
+            std::move(socket)
+    );
+ClientThread.detach();
         clientCount++;
 
         std::cout<<"Client Connected Successfully ! ... "<<std::endl;
