@@ -58,10 +58,10 @@ tcp::acceptor ChatServer::create_tcp_acceptor()
 {
     tcp::endpoint endpoint(boost::asio::ip::make_address(address),PORT);
 
-    //Create a acceptor to start connection request if sent //
+    //Create an acceptor to start connection request if sent //
     tcp::acceptor acceptor(io_context,endpoint);
 
-    //Adding a Optional check below //
+    //Adding an Optional check below //
     tcp::endpoint local = acceptor.local_endpoint();
     std::cout<<"Server is listening on: "<<local.address().to_string()<< " : "<<local.port()<<std::endl;
 
@@ -71,6 +71,7 @@ tcp::acceptor ChatServer::create_tcp_acceptor()
 
 void ChatServer::HandleClient(tcp::socket &socket)
 {
+    std::cout<<"HandleClient in thread id"<<std::this_thread::get_id()<<std::endl;
 
     //Make an optional check here to see if the which client has connected from their address and port//
     tcp::endpoint remote = socket.remote_endpoint();
