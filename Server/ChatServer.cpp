@@ -6,6 +6,9 @@
 #include "ChatServer.h"
 
 using boost::asio::ip::tcp;
+namespace{
+    std::mutex coutMutex;
+}
 
 ChatServer::ChatServer(std::string add, unsigned short int port_i)
     :io_context(),
@@ -71,6 +74,7 @@ tcp::acceptor ChatServer::create_tcp_acceptor()
 
 void ChatServer::HandleClient(tcp::socket &socket)
 {
+    std::lock_guard<std::mutex> lock(coutMutex);
     std::cout<<"HandleClient in thread id"<<std::this_thread::get_id()<<std::endl;
 
     //Make an optional check here to see if the which client has connected from their address and port//
@@ -104,6 +108,8 @@ void ChatServer::HandleClient(tcp::socket &socket)
             std::cout<<"Buffer returned empty -> Client disconnected"<<std::endl;
             break;
         }
+
+        std::lock_guard<std::mutex> lock(coutMutex);
         std::cout<<"Bytes read : "<<bytes_read<<std::endl;
 
         //Turns raw bytes into a std::string for easy printing //

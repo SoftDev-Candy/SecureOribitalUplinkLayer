@@ -8,9 +8,12 @@
 #include<iostream>
 #include<boost/asio.hpp>
 #include<array>
+#include<mutex>
 
-using boost::asio::ip::tcp;
-
+namespace{
+    using boost::asio::ip::tcp;
+    using std::mutex coutMutex;
+}
 class ChatServer
 {
 public:
