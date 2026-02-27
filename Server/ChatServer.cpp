@@ -39,7 +39,6 @@ void ChatServer::RunServer()
         //Make the acceptor wait till Client connects//
         acceptor.accept(socket);
 
-        //TODO - WRAP THIS INSIDE A THREAD
 
         std::thread ClientThread(
             [this](tcp::socket s)

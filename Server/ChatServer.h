@@ -12,7 +12,7 @@
 
 namespace{
     using boost::asio::ip::tcp;
-    using std::mutex coutMutex;
+    using std::mutex;
 }
 class ChatServer
 {
