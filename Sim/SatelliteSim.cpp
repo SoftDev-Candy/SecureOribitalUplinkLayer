@@ -3,14 +3,14 @@
 //
 
 #include<thread>
-#include "ChatServer.h"
+#include "SatelliteSim.h"
 
 using boost::asio::ip::tcp;
 namespace{
     std::mutex coutMutex;
 }
 
-ChatServer::ChatServer(std::string add, unsigned short int port_i)
+SatelliteSim::SatelliteSim(std::string add, unsigned short int port_i)
     :io_context(),
      acceptor(io_context),
      address(std::move(add)),
@@ -19,7 +19,7 @@ ChatServer::ChatServer(std::string add, unsigned short int port_i)
     acceptor = create_tcp_acceptor();
 }
 
-void ChatServer::RunServer()
+void SatelliteSim::RunServer()
 {
     //While to ensure the server can loop to create place for more clients
     while (true)
@@ -56,7 +56,7 @@ ClientThread.detach();
 
 }
 
-tcp::acceptor ChatServer::create_tcp_acceptor()
+tcp::acceptor SatelliteSim::create_tcp_acceptor()
 {
     tcp::endpoint endpoint(boost::asio::ip::make_address(address),PORT);
 
@@ -71,7 +71,7 @@ tcp::acceptor ChatServer::create_tcp_acceptor()
 
 }
 
-void ChatServer::HandleClient(tcp::socket &socket)
+void SatelliteSim::HandleClient(tcp::socket &socket)
 {
     std::lock_guard<std::mutex> lock(coutMutex);
     std::cout<<"HandleClient in thread id"<<std::this_thread::get_id()<<std::endl;

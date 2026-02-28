@@ -9,13 +9,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #The old behaviour was removed so we use this now to find the BOOST== VROOM VROOM
 find_package(Boost CONFIG REQUIRED COMPONENTS system filesystem)
 
-add_executable(SOUL Server/Server.cpp
-        Server/ChatServer.cpp
-        Server/ChatServer.h)
+add_executable(SOUL Sim/main.cpp
+        Sim/SatelliteSim.cpp
+        Sim/SatelliteSim.h
+        Common/TelemetryFrame.h
+)
 
-add_executable(Client Client/Client.cpp
-        Client/ChatClient.cpp
-        Client/ChatClient.h)
+add_executable(Client Hub/main.cpp
+        Hub/TelemetryHub.cpp
+        Hub/TelemetryHub.h)
 
 
 target_link_libraries(SOUL PRIVATE Boost::boost)

@@ -6,7 +6,7 @@
 #define CHATSERVER_CHATCLIENT_H
 
 
-class ChatClient
+class TelemetryHub
 {
 };
 

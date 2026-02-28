@@ -14,10 +14,10 @@ namespace{
     using boost::asio::ip::tcp;
     using std::mutex;
 }
-class ChatServer
+class SatelliteSim
 {
 public:
-    ChatServer( std::string add , unsigned short int port_i );
+    SatelliteSim( std::string add , unsigned short int port_i );
     void RunServer();
     void HandleClient(tcp::socket &socket);
 
