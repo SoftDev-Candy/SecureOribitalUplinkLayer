@@ -87,11 +87,11 @@ std::optional<TelemetryFrame> TelemetryFrame::FromJson(const std::string &json_s
     TelemetryFrame tf;
 
     //Setting values in telemetry frame's object using value_to function for safe deserialization
-  tf.sat_id =  json::value_to<std::string>(val_obj.at("sat_id"));;
-  tf.sequence =  json::value_to<uint64_t>(val_obj.at("sequence"));;
-  tf.timestamp_ms =  json::value_to<uint64_t>(val_obj.at("timestamp_ms"));;
-  tf.battery =  json::value_to<float>(val_obj.at("battery"));;
-  tf.temp_c =  json::value_to<float>(val_obj.at("temp_c"));;
+  tf.sat_id =  json::value_to<std::string>(val_obj.at("sat_id"));
+  tf.sequence =  json::value_to<uint64_t>(val_obj.at("sequence"));
+  tf.timestamp_ms =  json::value_to<uint64_t>(val_obj.at("timestamp_ms"));
+  tf.battery =  json::value_to<float>(val_obj.at("battery"));
+  tf.temp_c =  json::value_to<float>(val_obj.at("temp_c"));
 
     //Don't forget to return it
     return tf;
