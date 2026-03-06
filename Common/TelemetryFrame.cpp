@@ -22,7 +22,6 @@ std::string TelemetryFrame::ToJson() const
 
   std::string serialized_str = json::serialize(obj);
 
-  //FIXME -- Only for Debugging remove after checking please
   std::cout<<serialized_str<<std::endl;
 
   return serialized_str;
@@ -34,10 +33,6 @@ TelemetryFrame TelemetryFrame::FromJson(const std::string &json_string)
   TelemetryFrame tf;
 
   json::error_code ec;
-
-  //TODO -  Check if the object is a val
-
-
 
   //Parsing the string and storing its value
   json::value val_from_string = json::parse(json_string, ec);
@@ -82,7 +77,6 @@ TelemetryFrame TelemetryFrame::FromJson(const std::string &json_string)
     throw std::runtime_error("Failed to find temp_c in JSON data");
   }
 
-  //TODO-  Use Try and catch to check it's object , extract fields , assign to TelemetryFrame  and the return
 
   try
   {
