@@ -11,13 +11,14 @@ find_package(Boost CONFIG REQUIRED COMPONENTS system filesystem)
 
 add_executable(SOUL Sim/main.cpp
         Sim/SatelliteSim.cpp
-        Sim/SatelliteSim.h
-        Common/TelemetryFrame.h
+        Sim/SatelliteSim.hpp
+        Common/TelemetryFrame.hpp
 )
 
 add_executable(Client Hub/main.cpp
         Hub/TelemetryHub.cpp
-        Hub/TelemetryHub.h)
+        Hub/TelemetryHub.hpp
+        Common/TelemetryFrame.cpp)
 
 
 target_link_libraries(SOUL PRIVATE Boost::boost)

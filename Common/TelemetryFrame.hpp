@@ -4,8 +4,10 @@
 
 #ifndef SOUL_TELEMETRYFRAME_H
 #define SOUL_TELEMETRYFRAME_H
+
 #include <cstdint>
 #include <string>
+#include <boost/json.hpp>
 
 //Atomic Unit of state update basically a message system
 struct TelemetryFrame
@@ -23,6 +25,12 @@ struct TelemetryFrame
 
     //Same thing as the battery can be used to measure a lot of things
     float temp_c{};
+
+    //Convert or serialize string To Json//
+     std::string ToJson()const ;
+
+    //From deserialize the returned string from ToJson() Function//
+    static TelemetryFrame FromJson(const std::string& json);
 };
 
 #endif //SOUL_TELEMETRYFRAME_H

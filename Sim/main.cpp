@@ -2,7 +2,7 @@
 // Created by Candy on 2/7/26.
 //
 
-#include"SatelliteSim.h"
+#include"SatelliteSim.hpp"
 int main()
 {
     try {

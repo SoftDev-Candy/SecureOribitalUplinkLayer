@@ -3,7 +3,7 @@
 //
 
 #include<thread>
-#include "SatelliteSim.h"
+#include "SatelliteSim.hpp"
 
 using boost::asio::ip::tcp;
 namespace{
