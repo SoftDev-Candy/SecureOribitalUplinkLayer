@@ -3,8 +3,8 @@
 //
 
 #include "TelemetryFrame.hpp"
-
 #include <iostream>
+
 namespace json = boost::json;
 
 std::string TelemetryFrame::ToJson() const
@@ -21,16 +21,12 @@ std::string TelemetryFrame::ToJson() const
   obj["temp_c"]       =  this->temp_c;
 
   std::string serialized_str = json::serialize(obj);
-
-  std::cout<<serialized_str<<std::endl;
-
   return serialized_str;
 }
 
-TelemetryFrame TelemetryFrame::FromJson(const std::string &json_string)
+//Switched the return type to optional to figure out if we have bad frames in place
+std::optional<TelemetryFrame> TelemetryFrame::FromJson(const std::string &json_string)
 {
-  //Telemetry Frame struct object //
-  TelemetryFrame tf;
 
   json::error_code ec;
 
@@ -41,45 +37,54 @@ TelemetryFrame TelemetryFrame::FromJson(const std::string &json_string)
   {
     std::cerr<<"Failed to parse Json "<<ec.message()<<std::endl;
     //I want to use throw, but I don't believe its necessary
+    return std::nullopt;
+
   }
 
   if (!val_from_string.is_object())
   {
-    throw std::runtime_error("Failed to parse JSON data");
+        std::cerr<<"Invalid JSON :expected object \n";
+        return std::nullopt;
   }
 
   //  Created an obj from Value
-  json::object& val_obj = val_from_string.get_object();
+  json::object& val_obj = val_from_string.as_object(); // as_object instead of get object
 
  //To check and validate if obj contain their respective values
   if (!val_obj.contains("sat_id"))
   {
-    throw std::runtime_error("Failed to find sat_id in JSON data");
+    std::cerr << "Missing field: sat_id\n";
+    return std::nullopt;
   }
 
-  else if (!val_obj.contains("sequence"))
+  if (!val_obj.contains("sequence"))
   {
-    throw std::runtime_error("Failed to find sequence in JSON data");
+    std::cerr << "Missing field: sequence\n";
+    return std::nullopt;
   }
 
-  else if (!val_obj.contains("timestamp_ms"))
+  if (!val_obj.contains("timestamp_ms"))
   {
-    throw std::runtime_error("Failed to find timestamp_ms in JSON data");
+    std::cerr << "Missing field: timestamp_ms\n";
+    return std::nullopt;
   }
 
-  else if (!val_obj.contains("battery"))
+  if (!val_obj.contains("battery"))
   {
-    throw std::runtime_error("Failed to find battery in JSON data");
+    std::cerr << "Missing field: battery\n";
+    return std::nullopt;
   }
 
-  else if (!val_obj.contains("temp_c"))
+  if (!val_obj.contains("temp_c"))
   {
-    throw std::runtime_error("Failed to find temp_c in JSON data");
+    std::cerr << "Missing field: temp_c\n";
+    return std::nullopt;
   }
-
 
   try
   {
+    //Telemetry Frame struct object //
+    TelemetryFrame tf;
 
     //Setting values in telemetry frame's object using value_to function for safe deserialization
   tf.sat_id =  json::value_to<std::string>(val_obj.at("sat_id"));;
@@ -88,6 +93,8 @@ TelemetryFrame TelemetryFrame::FromJson(const std::string &json_string)
   tf.battery =  json::value_to<float>(val_obj.at("battery"));;
   tf.temp_c =  json::value_to<float>(val_obj.at("temp_c"));;
 
+    //Don't forget to return it
+    return tf;
   }
 
   catch (std::exception& e)
@@ -95,5 +102,5 @@ TelemetryFrame TelemetryFrame::FromJson(const std::string &json_string)
     std::cerr<<"Error Accessing JSON field's"<<e.what()<<std::endl;
   }
 
-return tf;
+return std::nullopt;
 }

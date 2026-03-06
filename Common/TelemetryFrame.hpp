@@ -30,7 +30,7 @@ struct TelemetryFrame
      std::string ToJson()const ;
 
     //From deserialize the returned string from ToJson() Function//
-    static TelemetryFrame FromJson(const std::string& json);
+    static std::optional<TelemetryFrame> FromJson(const std::string& json);
 };
 
 #endif //SOUL_TELEMETRYFRAME_H
