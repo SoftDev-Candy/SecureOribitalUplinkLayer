@@ -16,7 +16,7 @@ class FrameCodec
     public:
     FrameCodec();
 
-    static std::string EncodeFrame(std::string Json);
+    static std::vector<uint8_t> EncodeFrame(std::string Json_str);
     static std::string DecodeFrame(boost::asio::ip::tcp::socket socket);
 
     ~FrameCodec();
