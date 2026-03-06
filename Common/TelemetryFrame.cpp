@@ -97,7 +97,7 @@ std::optional<TelemetryFrame> TelemetryFrame::FromJson(const std::string &json_s
     return tf;
   }
 
-  catch (std::exception& e)
+  catch (const std::exception& e)
   {
     std::cerr<<"Error Accessing JSON field's"<<e.what()<<std::endl;
   }
