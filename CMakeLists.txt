@@ -13,12 +13,16 @@ add_executable(SOUL Sim/main.cpp
         Sim/SatelliteSim.cpp
         Sim/SatelliteSim.hpp
         Common/TelemetryFrame.hpp
+        Common/FrameCodec.cpp
+        Common/FrameCodec.hpp
 )
 
 add_executable(Client Hub/main.cpp
         Hub/TelemetryHub.cpp
         Hub/TelemetryHub.hpp
-        Common/TelemetryFrame.cpp)
+        Common/TelemetryFrame.cpp
+        Common/FrameCodec.cpp
+        Common/FrameCodec.hpp)
 
 
 target_link_libraries(SOUL PRIVATE Boost::boost)

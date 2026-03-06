@@ -120,7 +120,6 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
             break; // don't echo "exit" back, just close
         }
 
-
         std::cout<<"And the message is: "<<message<<std::endl;
 
         //Now lets try and echo from the server back into the client//
