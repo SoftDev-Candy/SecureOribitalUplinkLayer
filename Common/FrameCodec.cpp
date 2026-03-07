@@ -28,7 +28,7 @@ std::vector<uint8_t> FrameCodec::EncodeFrame(std::string Json_str)
 std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
 {
     // 4-byte Vector buffer that will store the payloads lengths //
-    std::array<uint8_t , 4>buffer ;
+    std::array<uint8_t , 4>header ;
 
     //Max Frame Size Element to check payload length is correct or no strict for now will variate it later //
     constexpr uint32_t Max_Frame_Size = 64 * 1024;
@@ -37,7 +37,7 @@ std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
         boost::system::error_code error;
 
     //Will use bytes read for any Eof errors we might run into //
-    std::size_t bytes_read  = boost::asio::read(socket,boost::asio::buffer(buffer , 4),error);
+    std::size_t bytes_read  = boost::asio::read(socket,boost::asio::buffer(header , 4),error);
 
 
     if (error == boost::asio::error::eof)
@@ -60,10 +60,10 @@ std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
     }
 
     // Decoding and storing the length of the incoming vector //
-    uint32_t payload_length = (uint32_t(buffer[0]) << 24) |
-        (uint32_t(buffer[1]) << 16) |
-        (uint32_t(buffer[2]) << 8)  |
-        (uint32_t(buffer[3]) << 0);
+    uint32_t payload_length = (uint32_t(header[0]) << 24) |
+        (uint32_t(header[1]) << 16) |
+        (uint32_t(header[2]) << 8)  |
+        (uint32_t(header[3]) << 0);
 
     //If payload length is 0 or too big send error else set payload
     if ( payload_length == 0|| payload_length > Max_Frame_Size)
