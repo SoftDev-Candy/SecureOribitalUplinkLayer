@@ -73,6 +73,7 @@ tcp::acceptor SatelliteSim::create_tcp_acceptor()
 
 void SatelliteSim::HandleClient(tcp::socket &socket)
 {
+
     std::lock_guard<std::mutex> lock(coutMutex);
     std::cout<<"HandleClient in thread id"<<std::this_thread::get_id()<<std::endl;
 
@@ -82,7 +83,7 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
 
     while (true) {
         //Let's Read some data from the client make a buffer to store data//
-        std::array<char , 1024>buffer{};
+        std::array<char , 1024> buffer{};
 
         //Adding error code here because of EOF so we overload instead of throw.
         boost::system::error_code error;
@@ -99,7 +100,7 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
         if (error)
         {
             std::cout<<"Server : Error reading from socket"<<std::endl;
-            break;//Some other error Stop handling this client
+            break;//if Some other error Stop handling this client
         }
 
         if (bytes_read == 0)
