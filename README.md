@@ -167,4 +167,4 @@ The implementation is evolving, and some modules may be incomplete, unstable, or
 SOUL is currently under active development.
 More features, tests, diagrams, and demos will be added as the system matures.
 
-</div> ```
+</div>
