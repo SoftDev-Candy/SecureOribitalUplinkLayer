@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #The old behaviour was removed so we use this now to find the BOOST== VROOM VROOM
 find_package(Boost CONFIG REQUIRED COMPONENTS system filesystem)
+find_package(Boost CONFIG REQUIRED COMPONENTS json system)
+
 
 add_executable(SOUL Sim/main.cpp
         Sim/SatelliteSim.cpp
@@ -21,9 +23,19 @@ add_executable(Client Hub/main.cpp
         Hub/TelemetryHub.cpp
         Hub/TelemetryHub.hpp
         Common/TelemetryFrame.cpp
+        Common/TelemetryFrame.hpp
         Common/FrameCodec.cpp
-        Common/FrameCodec.hpp)
+        Common/FrameCodec.hpp
+        )
+
+add_executable(Test scratchTests/TestFrameCodec.cpp
+Common/TelemetryFrame.cpp
+Common/TelemetryFrame.hpp
+Common/FrameCodec.cpp
+Common/FrameCodec.hpp
+        )
 
 
 target_link_libraries(SOUL PRIVATE Boost::boost)
 target_link_libraries(Client PRIVATE Boost::boost)
+target_link_libraries(Test PRIVATE Boost::json Boost::boost)

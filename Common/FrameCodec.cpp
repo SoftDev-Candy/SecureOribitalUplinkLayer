@@ -6,6 +6,7 @@
 #include <iostream>
 #include <boost/asio/read.hpp>
 
+// Convert to Big Endian //
 std::vector<uint8_t> FrameCodec::EncodeFrame(std::string Json_str)
 {
     // Get JSON string size //
@@ -25,12 +26,14 @@ std::vector<uint8_t> FrameCodec::EncodeFrame(std::string Json_str)
     return buffer;
 }
 
+//Converted Decoded frame //
 std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
 {
-    // 4-byte Vector buffer that will store the payloads lengths //
+    // 4-byte Vector header  that will store the payloads lengths //
     std::array<uint8_t , 4>header ;
 
-    //Max Frame Size Element to check payload length is correct or no strict for now will variate it later //
+    //Max Frame Size Element to check payload length is
+    //correct or not strict for now will variate it later with WHIPS FOR CHECKS heheh//
     constexpr uint32_t Max_Frame_Size = 64 * 1024;
 
     //System Error code to check for any bad errors
@@ -38,7 +41,6 @@ std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
 
     //Will use bytes read for any Eof errors we might run into //
     std::size_t bytes_read  = boost::asio::read(socket,boost::asio::buffer(header , 4),error);
-
 
     if (error == boost::asio::error::eof)
     {
@@ -49,9 +51,8 @@ std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
     if (error)
     {
         std::cerr<<"DecodeFrame: failed to read header"<<std::endl;
-        return {};//if Some other error Stop handling this client
+        return {};//if Some other error Stop handling this client and return empty
     }
-
 
     if (bytes_read != 4)
     {
@@ -72,11 +73,11 @@ std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
         return {};
     }
 
-
     // Char vector to store the data from the payload length
     std::vector<char> payload(payload_length);
     std::size_t payload_bytes_read = boost::asio::read(socket,boost::asio::buffer(payload , payload_length) , error);
 
+    //Error Checks in case of connection closed or error thrown
     if (error == boost::asio::error::eof)
     {
         std::cerr << "DecodeFrame: peer closed connection while reading payload (EOF)"<<std::endl;
@@ -94,7 +95,6 @@ std::string FrameCodec::DecodeFrame(boost::asio::ip::tcp::socket& socket)
         std::cerr << "DecodeFrame: incomplete payload\n";
         return {};
     }
-
 
     // Converting the char vector into string for output //
     std::string json_str(payload.begin(), payload.end());

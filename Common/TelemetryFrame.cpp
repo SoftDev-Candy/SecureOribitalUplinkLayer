@@ -7,6 +7,7 @@
 
 namespace json = boost::json;
 
+//Serialization of  the bytes
 std::string TelemetryFrame::ToJson() const
 {
 
@@ -25,6 +26,7 @@ std::string TelemetryFrame::ToJson() const
 }
 
 //Switched the return type to optional to figure out if we have bad frames in place
+//Deserialzation
 std::optional<TelemetryFrame> TelemetryFrame::FromJson(const std::string &json_string)
 {
 
