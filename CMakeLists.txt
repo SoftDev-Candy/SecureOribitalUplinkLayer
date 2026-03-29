@@ -11,10 +11,11 @@ find_package(Boost CONFIG REQUIRED COMPONENTS system filesystem)
 find_package(Boost CONFIG REQUIRED COMPONENTS json system)
 
 
-add_executable(SOUL Sim/main.cpp
-        Sim/SatelliteSim.cpp
-        Sim/SatelliteSim.hpp
+add_executable(SOUL Server/main.cpp
+        Server/SatelliteSim.cpp
+        Server/SatelliteSim.hpp
         Common/TelemetryFrame.hpp
+        Common/TelemetryFrame.cpp
         Common/FrameCodec.cpp
         Common/FrameCodec.hpp
 )
@@ -36,6 +37,6 @@ Common/FrameCodec.hpp
         )
 
 
-target_link_libraries(SOUL PRIVATE Boost::boost)
-target_link_libraries(Client PRIVATE Boost::boost)
+target_link_libraries(SOUL PRIVATE Boost::json Boost::boost)
+target_link_libraries(Client PRIVATE Boost::json Boost::boost)
 target_link_libraries(Test PRIVATE Boost::json Boost::boost)

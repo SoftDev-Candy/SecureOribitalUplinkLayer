@@ -4,6 +4,7 @@
 
 #include<thread>
 #include "SatelliteSim.hpp"
+#include "../Common/TelemetryFrame.hpp"
 
 using boost::asio::ip::tcp;
 namespace{
@@ -82,8 +83,35 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
     std::cout<<"The cliented is connected from "<<remote.address().to_string()<<" : "<<remote.port()<<std::endl;
 
     while (true) {
+
+        std::string Decoded = Frame.DecodeFrame(socket);
+
+        if (Decoded == "")
+        {
+            std::cerr<<"The Decoded string was empty"<<std::endl;
+            break;
+        }
+
+        auto frame = TelemetryFrame::FromJson(Decoded);
+
+        if (!frame)
+        {
+            std::cerr<<"Frame was invalid";
+            continue;
+        }
+    else
+    {
+        std::cout<<frame->sat_id<<"\n";
+        std::cout<<frame->sequence<<"\n";
+        std::cout<<frame->timestamp_ms<<"\n";
+        std::cout<<frame->battery<<"\n";
+        std::cout<<frame->temp_c<<"\n";
+    }
+
+
+        /*
         //Let's Read some data from the client make a buffer to store data//
-        std::array<char , 1024> buffer{};
+       // std::array<char , 1024> buffer{};
 
         //Adding error code here because of EOF so we overload instead of throw.
         boost::system::error_code error;
@@ -126,6 +154,7 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
         //Now lets try and echo from the server back into the client//
         boost::asio::write(socket,boost::asio::buffer(message));
         std::cout<<"The server Echoed the message "<<std::endl<<message<<std::endl;
+        */
 
     }
     //std::cin.get();//Stops the code so I can see how the network works using ss -tln

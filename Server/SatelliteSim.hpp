@@ -10,6 +10,8 @@
 #include<array>
 #include<mutex>
 
+#include "../Common/FrameCodec.hpp"
+
 namespace{
     using boost::asio::ip::tcp;
     using std::mutex;
@@ -20,6 +22,7 @@ public:
     SatelliteSim( std::string add , unsigned short int port_i );
     void RunServer();
     void HandleClient(tcp::socket &socket);
+    FrameCodec Frame;
 
 private:
     tcp::acceptor create_tcp_acceptor();

@@ -5,6 +5,9 @@
 #include<iostream>
 #include<array>
 #include <boost/asio.hpp>
+#include "../Common/TelemetryFrame.hpp"
+#include "../Common/FrameCodec.hpp"
+
 
 using boost::asio::ip::tcp;
 
@@ -12,6 +15,25 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
 {
     while (true)
     {
+        //TelemetryFrame Object
+        TelemetryFrame tf;
+
+        //FrameCodec Object
+        FrameCodec Frame;
+
+        //Telemetry Data
+        tf.sat_id = "SAT_1";
+        tf.sequence = 482094824;
+        tf.timestamp_ms = 749284738947;
+        tf.battery =89.3;
+        tf.temp_c = 44.6;
+
+        //Convert To Json
+        std::string TelemetryJSON = tf.ToJson();
+
+        auto encoded = Frame.EncodeFrame(TelemetryJSON);
+
+        /*
         std::string message;
         std::cout<<"Type you're message : "<<std::endl;
 
@@ -36,7 +58,9 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
             continue;
         }
 
-        boost::asio::write(socket, boost::asio::buffer(message));
+        boost::asio::write(socket, boost::asio::buffer(message));*/
+        boost::asio::write(socket, boost::asio::buffer(TelemetryJSON));
+
         std::cout<<"The client sent the message"<<std::endl;
 
         //Creating buffer to read what the server echo's back//
