@@ -23,8 +23,8 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
 
         //Telemetry Data
         tf.sat_id = "SAT_1";
-        tf.sequence = 482094824;
-        tf.timestamp_ms = 749284738947;
+        tf.sequence = 482;
+        tf.timestamp_ms = 75;
         tf.battery =89.3;
         tf.temp_c = 44.6;
 
@@ -32,8 +32,9 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
         std::string TelemetryJSON = tf.ToJson();
 
         auto encoded = Frame.EncodeFrame(TelemetryJSON);
+        boost::asio::write(socket, boost::asio::buffer(encoded));
 
-        /*
+        /* Deprecated logic for sending messages to the server //
         std::string message;
         std::cout<<"Type you're message : "<<std::endl;
 
@@ -59,9 +60,8 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
         }
 
         boost::asio::write(socket, boost::asio::buffer(message));*/
-        boost::asio::write(socket, boost::asio::buffer(TelemetryJSON));
 
-        std::cout<<"The client sent the message"<<std::endl;
+        /*std::cout<<"The client sent the message"<<std::endl;
 
         //Creating buffer to read what the server echo's back//
         std::array<char , 1024>buffer{};
@@ -72,7 +72,7 @@ void HandleConnection (boost::asio::ip::tcp::socket& socket)
 
         std::string ServerMessage(buffer.data(), bytes_read);
 
-        std::cout << "The Server received and echoed the message: "<< ServerMessage << std::endl;
+        std::cout << "The Server received and echoed the message: "<< ServerMessage << std::endl;*/
     }
 
 }
