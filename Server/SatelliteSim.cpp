@@ -108,55 +108,6 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
         std::cout<<frame->temp_c<<"\n";
     }
 
-
-        /*
-        //Let's Read some data from the client make a buffer to store data//
-       // std::array<char , 1024> buffer{};
-
-        //Adding error code here because of EOF so we overload instead of throw.
-        boost::system::error_code error;
-
-        //Create a block to wait for some bytes to arrive if they don't connection will close//
-        std::size_t bytes_read = socket.read_some(boost::asio::buffer(buffer) , error);
-
-        if (error == boost::asio::error::eof)
-        {
-        std::cout<<"Server: Client Disconnected cleanly(EOF)"<<std::endl;
-        break;//Normal Disconnection Expected
-        }
-
-        if (error)
-        {
-            std::cout<<"Server : Error reading from socket"<<std::endl;
-            break;//if Some other error Stop handling this client
-        }
-
-        if (bytes_read == 0)
-        {
-            std::cout<<"Buffer returned empty -> Client disconnected"<<std::endl;
-            break;
-        }
-
-        std::lock_guard<std::mutex> lock(coutMutex);
-        std::cout<<"Bytes read : "<<bytes_read<<std::endl;
-
-        //Turns raw bytes into a std::string for easy printing //
-        std::string message (buffer.data(), bytes_read);
-
-        if (message == "exit")
-        {
-            std::cout << "Client requested exit. Closing connection.\n";
-            break; // don't echo "exit" back, just close
-        }
-
-        std::cout<<"And the message is: "<<message<<std::endl;
-
-        //Now lets try and echo from the server back into the client//
-        boost::asio::write(socket,boost::asio::buffer(message));
-        std::cout<<"The server Echoed the message "<<std::endl<<message<<std::endl;
-        */
-
     }
-    //std::cin.get();//Stops the code so I can see how the network works using ss -tln
 
 }
