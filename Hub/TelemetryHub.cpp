@@ -41,8 +41,23 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
         {
             std::cout<<"Ack Type "<<decoded<<std::endl;
         }
-        //TODO - Need to add a delay So something like Chrono thread delay would be nice but .... not the best way to do it//
-        std::this_thread::sleep_for(std::chrono::seconds(2));
+
+
+        //Simple Threading Underneath ...I should get into knitting ..//
+        //I really don't think this is a good practice do want to see how pro's do this tho ...lets do steady clock
+        //and sleep until to slow the entire thread down so we dont get spammed constantly//
+
+        //First define the clock type to use
+        using Clock = std::chrono::steady_clock;
+
+        //Second set the current time
+        Clock::time_point rightNow  = Clock::now();
+
+        //Third Calculate the time to wake_up the thread  //
+        Clock::time_point wakeupTime = rightNow + std::chrono::seconds(2);
+
+        //Call std::this_thread::sleep_until() with the future time point
+        std::this_thread::sleep_until(wakeupTime);
 
     }
 

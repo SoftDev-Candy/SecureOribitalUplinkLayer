@@ -13,7 +13,6 @@ class TelemetryHub
 {
 private:
 
-
 public:
     static int runClient();
     static void SendTelemetry (boost::asio::ip::tcp::socket& socket);
