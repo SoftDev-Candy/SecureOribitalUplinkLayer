@@ -7,9 +7,10 @@
 #include <iostream>
 using boost::asio::ip::tcp;
 
+
 void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 {
-
+int pass = 0;
     while (true)
     {
         //TelemetryFrame Object
@@ -18,12 +19,30 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
         //FrameCodec Object
         FrameCodec Frame;
 
-        //Telemetry Data
-        tf.sat_id = "SAT_1";
-        tf.sequence = 482;
-        tf.timestamp_ms = 75;
-        tf.battery =89.3;
-        tf.temp_c = 44.6;
+        //Lets get the current point in time from clock//
+        //Lets get the duration Epoch from its start
+        auto duration  = std::chrono::system_clock::now().time_since_epoch();
+
+        //Conversion to store it in time stamp
+            uint64_t timestamp_val = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+
+       if (pass == 0) //Telemetry Data
+       {
+           tf.sat_id = "SAT_1";
+           tf.sequence = 1;
+           tf.timestamp_ms = timestamp_val;
+           tf.battery =100;
+           tf.temp_c = 44.6;
+       }
+        //TODO -- NEED TO CREATE A DATABASE I am not storing any of these values XOXOXOOXXO
+        else if (pass != 0)
+        {
+            tf.sequence++;
+            tf.timestamp_ms = timestamp_val;
+            tf.battery--;
+            tf.temp_c++;
+
+        }
 
         //Convert To Json
         std::string TelemetryJSON = tf.ToJson();
@@ -58,6 +77,8 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 
         //Call std::this_thread::sleep_until() with the future time point
         std::this_thread::sleep_until(wakeupTime);
+
+        pass++;
 
     }
 
