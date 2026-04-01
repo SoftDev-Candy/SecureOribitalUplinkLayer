@@ -5,6 +5,8 @@
 #include<thread>
 #include "SatelliteSim.hpp"
 #include "../Common/TelemetryFrame.hpp"
+#include<thread>
+#include<chrono>
 
 using boost::asio::ip::tcp;
 namespace{
@@ -45,7 +47,7 @@ void SatelliteSim::RunServer()
             [this](tcp::socket s)
             {
                 //call the client server
-                HandleClient(s);
+                ReceiveTelemetry(s);
             },
             std::move(socket)
     );
@@ -72,18 +74,17 @@ tcp::acceptor SatelliteSim::create_tcp_acceptor()
 
 }
 
-void SatelliteSim::HandleClient(tcp::socket &socket)
+void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
 {
-
-    std::lock_guard<std::mutex> lock(coutMutex);
-    std::cout<<"HandleClient in thread id"<<std::this_thread::get_id()<<std::endl;
 
     //Make an optional check here to see if the which client has connected from their address and port//
     tcp::endpoint remote = socket.remote_endpoint();
     std::cout<<"The cliented is connected from "<<remote.address().to_string()<<" : "<<remote.port()<<std::endl;
 
-    while (true) {
-
+    //While loop so server stays on and keeps receiving data from multiple clients
+    while (true)
+    {
+        //Decode the received bytes from the socket into a string//
         std::string Decoded = Frame.DecodeFrame(socket);
 
         if (Decoded == "")
@@ -92,22 +93,40 @@ void SatelliteSim::HandleClient(tcp::socket &socket)
             break;
         }
 
+        //Store it in a variable and check if its valid, if it is valid print the data received from frame
         auto frame = TelemetryFrame::FromJson(Decoded);
 
         if (!frame)
         {
             std::cerr<<"Frame was invalid";
             continue;
-        }
-    else
-    {
-        std::cout<<frame->sat_id<<"\n";
-        std::cout<<frame->sequence<<"\n";
-        std::cout<<frame->timestamp_ms<<"\n";
-        std::cout<<frame->battery<<"\n";
-        std::cout<<frame->temp_c<<"\n";
-    }
+        }else
+        {
+            std::lock_guard<std::mutex> lock(coutMutex);
+            std::cout<<"HandleClient in thread id"<<std::this_thread::get_id()<<std::endl;
 
-    }
+            std::cout<<frame->sat_id<<"\n";
+            std::cout<<frame->sequence<<"\n";
+            std::cout<<frame->timestamp_ms<<"\n";
+            std::cout<<frame->battery<<"\n";
+            std::cout<<frame->temp_c<<"\n";
+        }
+
+        //Creating a JSON namespace to send Ack to the client of telemetry
+        boost::json::object object;
+        //Building Json Objects to send Ack
+        object["type"] = "ack";
+        object["sequence"] = frame->sequence;
+
+        //Serializing and encoded the object
+        std::string serializedJson = boost::json::serialize(object);
+        auto encoded = Frame.EncodeFrame(serializedJson);
+
+        //Writing the object in the socket and preparing it to send to the client
+        boost::asio::write(socket, boost::asio::buffer(encoded));
+
+    }//While loop bracket goes here THE END
+
+
 
 }

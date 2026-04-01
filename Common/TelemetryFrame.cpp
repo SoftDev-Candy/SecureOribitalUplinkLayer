@@ -26,7 +26,7 @@ std::string TelemetryFrame::ToJson() const
 }
 
 //Switched the return type to optional to figure out if we have bad frames in place
-//Deserialzation
+//Deserialization
 std::optional<TelemetryFrame> TelemetryFrame::FromJson(const std::string &json_string)
 {
 
@@ -37,6 +37,7 @@ std::optional<TelemetryFrame> TelemetryFrame::FromJson(const std::string &json_s
 
   if (ec)
   {
+
     std::cerr<<"Failed to parse Json "<<ec.message()<<std::endl;
     //I want to use throw, but I don't believe its necessary
     return std::nullopt;

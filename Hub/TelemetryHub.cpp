@@ -7,7 +7,7 @@
 #include <iostream>
 using boost::asio::ip::tcp;
 
-void TelemetryHub::HandleConnection(boost::asio::ip::tcp::socket &socket)
+void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 {
 
     while (true)
@@ -28,8 +28,21 @@ void TelemetryHub::HandleConnection(boost::asio::ip::tcp::socket &socket)
         //Convert To Json
         std::string TelemetryJSON = tf.ToJson();
 
+        //Encoding the Telemetry and writing it down in the socket//
         auto encoded = Frame.EncodeFrame(TelemetryJSON);
         boost::asio::write(socket, boost::asio::buffer(encoded));
+
+        //Decode the incoming string from the server to get ack packet.//
+        auto decoded = Frame.DecodeFrame(socket);
+        if (decoded== "")
+        {
+            std::cerr<<"Decoded Ack from the server is invalid";
+        }else
+        {
+            std::cout<<"Ack Type "<<decoded<<std::endl;
+        }
+        //TODO - Need to add a delay So something like Chrono thread delay would be nice but .... not the best way to do it//
+        std::this_thread::sleep_for(std::chrono::seconds(2));
 
     }
 
@@ -49,7 +62,7 @@ void TelemetryHub::HandleConnection(boost::asio::ip::tcp::socket &socket)
 
         socket.connect(endpoint);
 
-        HandleConnection(socket);
+        SendTelemetry(socket);
 
         return 0; // success
 

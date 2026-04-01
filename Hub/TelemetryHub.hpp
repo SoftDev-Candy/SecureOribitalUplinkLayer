@@ -16,7 +16,7 @@ private:
 
 public:
     static int runClient();
-    static void HandleConnection (boost::asio::ip::tcp::socket& socket);
+    static void SendTelemetry (boost::asio::ip::tcp::socket& socket);
 
 
 

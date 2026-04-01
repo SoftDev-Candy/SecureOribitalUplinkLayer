@@ -7,6 +7,7 @@
 
 #include<iostream>
 #include<boost/asio.hpp>
+#include<boost/thread.hpp>
 #include<array>
 #include<mutex>
 
@@ -21,7 +22,7 @@ class SatelliteSim
 public:
     SatelliteSim( std::string add , unsigned short int port_i );
     void RunServer();
-    void HandleClient(tcp::socket &socket);
+    void ReceiveTelemetry(tcp::socket &socket) const;
     FrameCodec Frame;
 
 private:
