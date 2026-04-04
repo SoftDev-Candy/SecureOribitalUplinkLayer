@@ -10,6 +10,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Boost CONFIG REQUIRED COMPONENTS system filesystem)
 find_package(Boost CONFIG REQUIRED COMPONENTS json system)
 
+add_library(sqlite3 STATIC
+external/sqlite/sqlite3.c)
+
+target_include_directories(sqlite3 PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/external/sqlite
+)
 
 add_executable(SOUL Server/main.cpp
         Server/SatelliteSim.cpp
@@ -36,7 +42,6 @@ Common/FrameCodec.cpp
 Common/FrameCodec.hpp
         )
 
-
-target_link_libraries(SOUL PRIVATE Boost::json Boost::boost)
-target_link_libraries(Client PRIVATE Boost::json Boost::boost)
-target_link_libraries(Test PRIVATE Boost::json Boost::boost)
+target_link_libraries(SOUL PRIVATE sqlite3  Boost::json Boost::system Boost::filesystem)
+target_link_libraries(Client PRIVATE Boost::json Boost::system Boost::filesystem)
+target_link_libraries(Test PRIVATE Boost::json Boost::system Boost::filesystem)
