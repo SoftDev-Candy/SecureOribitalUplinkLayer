@@ -24,6 +24,8 @@ add_executable(SOUL Server/main.cpp
         Common/TelemetryFrame.cpp
         Common/FrameCodec.cpp
         Common/FrameCodec.hpp
+        Database/Database.cpp
+        Database/Database.hpp
 )
 
 add_executable(Client Hub/main.cpp
@@ -33,7 +35,8 @@ add_executable(Client Hub/main.cpp
         Common/TelemetryFrame.hpp
         Common/FrameCodec.cpp
         Common/FrameCodec.hpp
-        )
+
+)
 
 add_executable(Test scratchTests/TestFrameCodec.cpp
 Common/TelemetryFrame.cpp
