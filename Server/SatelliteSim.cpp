@@ -8,10 +8,14 @@
 #include<thread>
 #include<chrono>
 
+#include "../Database/Database.hpp"
+
 using boost::asio::ip::tcp;
 namespace{
     std::mutex coutMutex;
 }
+
+std::unordered_map<std::string ,std::optional<TelemetryFrame>>SatelliteSim::TelemetryStateMap;
 
 SatelliteSim::SatelliteSim(std::string add, unsigned short int port_i)
     :io_context(),
@@ -24,6 +28,7 @@ SatelliteSim::SatelliteSim(std::string add, unsigned short int port_i)
 
 void SatelliteSim::RunServer()
 {
+    Database::Database_init();
     //While to ensure the server can loop to create place for more clients
     while (true)
     {
@@ -95,6 +100,8 @@ void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
 
         //Store it in a variable and check if its valid, if it is valid print the data received from frame
         auto frame = TelemetryFrame::FromJson(Decoded);
+        std::string id = frame->sat_id;
+        TelemetryStateMap[id] = frame;
 
         if (!frame)
         {
@@ -127,6 +134,6 @@ void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
 
     }//While loop bracket goes here THE END
 
-
+Database::Terminate();
 
 }

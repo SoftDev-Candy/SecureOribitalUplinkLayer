@@ -12,8 +12,13 @@ class Database
 {
 private:
 
+
 public:
-    int database_init(); // Initialize database or open it basically for changing of data//
+
+    static int Database_init(); // Initialize database or open it basically for changing of data//
+    static void Terminate();
+    static sqlite3* DB; // Database connection obj
+
 
 };
 

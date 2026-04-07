@@ -12,6 +12,7 @@
 #include<mutex>
 
 #include "../Common/FrameCodec.hpp"
+#include "../Common/TelemetryFrame.hpp"
 
 namespace{
     using boost::asio::ip::tcp;
@@ -20,8 +21,13 @@ namespace{
 class SatelliteSim
 {
 public:
+    //Constructor
     SatelliteSim( std::string add , unsigned short int port_i );
+
+    //Names says it all but responsible to run the server
     void RunServer();
+
+    //Will receive telemetry data and parse thru it and print it out for now
     void ReceiveTelemetry(tcp::socket &socket) const;
     FrameCodec Frame;
 
@@ -30,10 +36,17 @@ private:
 
     //Basically the I/O Engine for boost.
     boost::asio::io_context io_context;
+    //boost acceptor
     tcp::acceptor acceptor;
+    //Counts the amount of clients connected not required now but can be used to keep track of the satellite
      uint_fast64_t clientCount = 0 ;
     std::string address;
     unsigned short int PORT;
+
+    //To Store the current state of the pushed data//
+   static std::unordered_map<std::string ,std::optional<TelemetryFrame>>TelemetryStateMap ;
+
+
 
 };
 

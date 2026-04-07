@@ -5,10 +5,9 @@
 #include "Database.hpp"
 
 #include <iostream>
-
-int Database::database_init()
+sqlite3* Database::DB;
+int Database::Database_init()
 {
-    sqlite3* DB; // Database connection obj
 
     int rc = sqlite3_open("Soul.db",&DB);//Call the sqlite constructor
 
@@ -39,8 +38,18 @@ const char* sql =   "CREATE TABLE IF NOT EXISTS Telemetry("
         sqlite3_close(DB);
         return 1;
     }
+    else
+    {
+        std::cout<<"Database opened/Created and is ready to be accessed"<<std::endl;
+    }
 
-    sqlite3_close(DB);
+    Terminate();
     return 0;
+}
+
+void Database::Terminate()
+{
+    sqlite3_close(DB);
+    std::cout<<"Database is closed as end of while loop -- Quit condition is applied"<<std::endl;
 
 }
