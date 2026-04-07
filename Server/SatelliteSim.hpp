@@ -44,7 +44,7 @@ private:
     unsigned short int PORT;
 
     //To Store the current state of the pushed data//
-   static std::unordered_map<std::string ,std::optional<TelemetryFrame>>TelemetryStateMap ;
+   static std::unordered_map<std::string ,TelemetryFrame>TelemetryStateMap ;
 
 
 

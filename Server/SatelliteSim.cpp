@@ -3,11 +3,9 @@
 //
 
 #include<thread>
+#include<chrono>
 #include "SatelliteSim.hpp"
 #include "../Common/TelemetryFrame.hpp"
-#include<thread>
-#include<chrono>
-
 #include "../Database/Database.hpp"
 
 using boost::asio::ip::tcp;
@@ -15,7 +13,7 @@ namespace{
     std::mutex coutMutex;
 }
 
-std::unordered_map<std::string ,std::optional<TelemetryFrame>>SatelliteSim::TelemetryStateMap;
+std::unordered_map<std::string ,TelemetryFrame>SatelliteSim::TelemetryStateMap;
 
 SatelliteSim::SatelliteSim(std::string add, unsigned short int port_i)
     :io_context(),
@@ -100,9 +98,13 @@ void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
 
         //Store it in a variable and check if its valid, if it is valid print the data received from frame
         auto frame = TelemetryFrame::FromJson(Decoded);
-        std::string id = frame->sat_id;
-        TelemetryStateMap[id] = frame;
-
+        if (frame)
+        {
+            const TelemetryFrame& convertedFrame = *frame;
+            //Push the frame in unordered-map by Sat_id //
+            TelemetryStateMap[convertedFrame.sat_id] = convertedFrame;
+            //Database::InsertTelemetry(convertedFrame);
+        }
         if (!frame)
         {
             std::cerr<<"Frame was invalid";
@@ -134,6 +136,7 @@ void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
 
     }//While loop bracket goes here THE END
 
+    //FIXME -- This is not getting reached because well there is no quit condition.//
 Database::Terminate();
 
 }

@@ -6,22 +6,20 @@
 #define SOUL_DATABASE_HPP
 #include <boost/mp11/list.hpp>
 
+#include "../Common/TelemetryFrame.hpp"
 #include "../external/sqlite/sqlite3.h"
 
 class Database
 {
 private:
 
-
 public:
-
     static int Database_init(); // Initialize database or open it basically for changing of data//
-    static void Terminate();
+    static int Create_DB();
+    static int CreateTable();
+    static void Terminate();//Closes database and will terminate any processes that need to be terminated
+    static const int InsertTelemetry(const TelemetryFrame& tframe , uint64_t received_ms) ;//Add data to the
     static sqlite3* DB; // Database connection obj
-
-
 };
-
-
 
 #endif //SOUL_DATABASE_HPP

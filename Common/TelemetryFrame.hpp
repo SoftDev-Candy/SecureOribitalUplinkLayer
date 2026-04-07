@@ -30,6 +30,7 @@ struct TelemetryFrame
      std::string ToJson()const ;
 
     //From deserialize the returned string from ToJson() Function//
+    //Its optional because some data may or may not have entry, and we want that to be safe
     static std::optional<TelemetryFrame> FromJson(const std::string& json);
 };
 
