@@ -3,168 +3,86 @@
 # SOUL
 ### Secure Orbital Uplink Layer
 
-**A real-time orbital communications simulation project focused on telemetry ingestion, link degradation, and systems resilience.**
+**A C++20 telemetry and orbital communications simulation project focused on networking, ingestion, and resilience.**
 
 ![C++](https://img.shields.io/badge/C%2B%2B-20-blue?style=for-the-badge&logo=c%2B%2B)
 ![Boost](https://img.shields.io/badge/Boost-Asio%20%7C%20JSON-orange?style=for-the-badge&logo=boost)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=for-the-badge&logo=sqlite)
 ![CMake](https://img.shields.io/badge/CMake-Build%20System-red?style=for-the-badge&logo=cmake)
-![Linux](https://img.shields.io/badge/Linux-Ubuntu-black?style=for-the-badge&logo=ubuntu)
 ![Status](https://img.shields.io/badge/Status-Work%20In%20Progress-yellow?style=for-the-badge)
-![Focus](https://img.shields.io/badge/Focus-Backend%20%7C%20Networking%20%7C%20Simulation-green?style=for-the-badge)
 
 </div>
 
----
-
 > [!WARNING]
-> **This project is still actively in development.**  
-> The architecture, features, documentation, and data flow may change significantly as the project progresses.
-
----
+> This project is still actively evolving. The README, architecture notes, workflow details, and implementation choices will likely change over the next few weeks as the system grows.
 
 ## Overview
 
-**SOUL** is a C++20 project that explores the design of a **telemetry ingestion and orbital communications simulation system**.
+SOUL is a backend-first C++20 project for sending, receiving, and processing simulated satellite telemetry over TCP.
 
-The goal is to build a backend-focused platform that can:
+The current focus is on:
 
-- receive structured telemetry from multiple simulated satellites
-- model degraded link conditions such as packet loss, latency spikes, and outages
-- track link health and telemetry freshness in real time
-- evolve into a visualization-driven simulation experience
+- structured telemetry frames
+- length-prefixed messaging
+- a telemetry sender and receiver
+- SQLite-backed packet storage work
+- keeping the project organized with clear planning and documentation
 
-This project is being built as a systems-oriented portfolio piece focused on:
+## Current Status
 
-- backend engineering
-- network programming
-- concurrency
-- protocol design
-- simulation tooling
+The current codebase includes:
 
----
+- `Server/` for the telemetry receiver/server and acknowledgement path
+- `Hub/` for the telemetry sender/client
+- `Common/` for shared telemetry frame and frame codec logic
+- `Database/` for the SQLite database layer being used for received-packet storage
+- `scratchTests/` for temporary checks while proper unit tests are being planned
 
-## Current Focus
+Current build targets:
 
-The project is currently focused on the **backend foundation**, including:
+- `SOUL` for the server/receiver
+- `Client` for the telemetry sender/client
+- `Test` for scratch validation work
 
-- telemetry frame design
-- JSON serialization / deserialization
-- TCP framing with length-prefixed messages
-- multi-client ingestion architecture
-- link impairment simulation planning
+## Workflow
 
----
+I am using Miro to keep track of important findings, timeline planning, and kanban work so the project stays structured while the design is still changing.
 
-## Planned Features
+- Kanban board: [docs/KanbanBoard.png](docs/KanbanBoard.png)
+- Timeline view: [docs/TimeLineview.png](docs/TimeLineview.png)
 
-### Backend / Systems
-- Multi-client TCP telemetry ingestion
-- Structured telemetry frame protocol
-- Length-prefixed frame codec
-- Sequence tracking and timestamp validation
-- Link health state detection
-- Packet loss / latency / outage simulation
-- Logging and metrics
-- Unit testing
-
-### Simulation
-- Satellite telemetry simulation clients
-- Scenario-driven communication events
-- Link degradation / contested environment modeling
-- Replayable mission scenarios
-
-### Visualization
-- Orbital and ground-station visualization
-- Link-state overlays
-- Packet loss / latency graphs
-- Operator-style monitoring interface
-
----
+![SOUL kanban board](docs/KanbanBoard.png)
 
 ## Tech Stack
 
-- **C++20**
-- **Boost.Asio**
-- **Boost.JSON**
-- **CMake**
-- **Linux / Ubuntu**
-- **GoogleTest** *(planned)*
-- **Visualization layer** *(planned / evolving)*
+- C++20
+- Boost.Asio
+- Boost.JSON
+- SQLite
+- CMake
 
----
+## Documentation
+
+- Requirements: [docs/01_requirement.md](docs/01_requirement.md)
+- Protocol notes: [docs/02_protocol.md](docs/02_protocol.md)
+- Architecture: [docs/03_architecture.md](docs/03_architecture.md)
 
 ## Project Structure
 
-```
+```text
 SOUL/
-├── Common/        # Shared data structures and protocol helpers
-├── Hub/           # Telemetry ingestion backend
-├── Sim/           # Satellite simulation clients
-├── docs/          # Design notes, protocol drafts, architecture docs
-└── CMakeLists.txt
+|-- Common/
+|-- Hub/
+|-- Server/
+|-- Database/
+|-- scratchTests/
+|-- docs/
+`-- external/sqlite/
 ```
 
+## Next Steps
 
-## Development Philosophy
-
-SOUL is being built with a strong emphasis on:
-
-clean architecture
-
-incremental system design
-
-defensive parsing and validation
-
-real-time state handling
-
-backend-first development
-
-The intention is not just to “make it work,” but to understand and implement the kinds of patterns used in serious systems software.
-
-## Roadmap
-
- Initial project structure
-
- Telemetry frame model
-
- JSON serialization / deserialization
-
- Length-prefixed framing codec
-
- Integrate telemetry sender and receiver
-
- Multi-client telemetry ingestion
-
- Link impairment engine
-
- Health-state monitoring
-
- Unit tests
-
- Visualization client
-
-## Motivation
-
-## This project is inspired by real-world telemetry, simulation, and operations software used in:
-
-aerospace and satellite systems
-
-defense communications
-
-telecom/network monitoring
-
-real-time backend systems
-
-It is designed as a learning-driven project to push deeper into networking, systems design, and simulation-oriented backend engineering.
-
-##  ⚠️ Disclaimer
-
-This repository documents an ongoing learning and engineering project.
-The implementation is evolving, and some modules may be incomplete, unstable, or redesigned over time.
-
-<div align="center">
-
-SOUL is currently under active development.
-More features, tests, diagrams, and demos will be added as the system matures.
-
-</div>
+- continue wiring SQLite into received-packet persistence
+- add proper unit tests for the frame codec and telemetry flow
+- expand multi-client handling and link impairment simulation
+- keep refining the documentation as the implementation settles
