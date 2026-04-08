@@ -46,8 +46,6 @@ private:
     //To Store the current state of the pushed data//
    static std::unordered_map<std::string ,TelemetryFrame>TelemetryStateMap ;
 
-
-
 };
 
 

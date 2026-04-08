@@ -5,7 +5,9 @@
 #include "Database.hpp"
 
 #include <iostream>
+//Static Declaration
 sqlite3* Database::DB;
+
 int Database::Database_init()
 {
     Create_DB();
@@ -68,9 +70,41 @@ void Database::Terminate()
 const int Database::InsertTelemetry(const TelemetryFrame &tframe , uint64_t received_ms)
 {
 
+    //Prepare statement obj
+    sqlite3_stmt* stmt = nullptr;
 
+    //To insert one row into telemetry and put 5 values in the coloumn
+    const char* sql =
+        "INSERT INTO Telemetry (Satellite_name,timestamp_ms,battery,temperature,received_ms)"
+        "VALUES(?,?,?,?,?);";
 
+    //Builds the statement object from the sql text from above
+    int rc = sqlite3_prepare_v2(DB,sql,-1,&stmt,nullptr);
+    if(rc != SQLITE_OK)
+    {
+        return 1;
+    }
 
+    //Frame kid baby frame...frame bébé(In frence accent)
+    TelemetryFrame frame;
+
+    //Fill in the placeholder values we set up in the SQL as '?' using bind
+    sqlite3_bind_text(stmt,1,frame.sat_id.c_str(),-1,SQLITE_TRANSIENT);//Converting to c.str as we need cstyle string not C++
+    sqlite3_bind_int64(stmt,2,frame.timestamp_ms);
+    sqlite3_bind_double(stmt,3,frame.battery);
+    sqlite3_bind_double(stmt,4,frame.temp_c);
+    sqlite3_bind_int64(stmt,5,received_ms);
+
+    rc = sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    if(rc != SQLITE_DONE)
+    {
+        std::cerr<<"Ran into an Error during insertion of frame into the database"<<std::endl;
+        return 1;
+
+    }
+
+std::cout<<"Data has been added to the Database"<<std::endl;
 
 return 0;
 }

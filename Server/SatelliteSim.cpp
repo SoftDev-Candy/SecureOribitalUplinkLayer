@@ -103,12 +103,21 @@ void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
             const TelemetryFrame& convertedFrame = *frame;
             //Push the frame in unordered-map by Sat_id //
             TelemetryStateMap[convertedFrame.sat_id] = convertedFrame;
-            //Database::InsertTelemetry(convertedFrame);
+
+            //Calculate current time here //
+            auto duration  = std::chrono::system_clock::now().time_since_epoch();
+            //Conversion to store it in time stamp
+            uint64_t received_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+            //Call insert telemetry with the current frame and received message time stamp
+            Database::InsertTelemetry(convertedFrame , received_ms);
         }
         if (!frame)
         {
+
             std::cerr<<"Frame was invalid";
             continue;
+
         }else
         {
             std::lock_guard<std::mutex> lock(coutMutex);
