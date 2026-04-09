@@ -19,6 +19,8 @@ public:
     static int CreateTable();
     static void Terminate();//Closes database and will terminate any processes that need to be terminated
     static const int InsertTelemetry(const TelemetryFrame& tframe , uint64_t received_ms) ;//Add data to the
+
+    //FIXME -- I need to do something about keeping this static not a good solution making it static or global
     static sqlite3* DB; // Database connection obj
 };
 

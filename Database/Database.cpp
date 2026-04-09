@@ -36,6 +36,7 @@ int Database::CreateTable()
     const char* sql =   "CREATE TABLE IF NOT EXISTS Telemetry("
                         "id                 INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "Satellite_name     TEXT NOT NULL, "
+                        "Sequence           INTEGER NOT NULL, "
                         "timestamp_ms       INTEGER NOT NULL, "
                         "battery            REAL NOT NULL, "
                         "temperature        REAL NOT NULL, "
@@ -48,7 +49,7 @@ int Database::CreateTable()
     int rc = sqlite3_exec(DB,sql,nullptr,nullptr,&error_msg);
     if (rc != SQLITE_OK)
     {
-        std::cerr<<"Failed to open database ERROR  : "<<error_msg<<"\n";
+        std::cerr<<"Failed to Create Table in database ERROR  : "<<error_msg<<"\n";
         sqlite3_close(DB);
         return 1;
     }
@@ -62,6 +63,7 @@ int Database::CreateTable()
 
 void Database::Terminate()
 {
+
     sqlite3_close(DB);
     std::cout<<"Database is closed as end of while loop -- Quit condition is applied"<<std::endl;
 
@@ -75,8 +77,8 @@ const int Database::InsertTelemetry(const TelemetryFrame &tframe , uint64_t rece
 
     //To insert one row into telemetry and put 5 values in the coloumn
     const char* sql =
-        "INSERT INTO Telemetry (Satellite_name,timestamp_ms,battery,temperature,received_ms)"
-        "VALUES(?,?,?,?,?);";
+        "INSERT INTO Telemetry (Satellite_name,Sequence,timestamp_ms,battery,temperature,received_ms)"
+        "VALUES(?,?,?,?,?,?);";
 
     //Builds the statement object from the sql text from above
     int rc = sqlite3_prepare_v2(DB,sql,-1,&stmt,nullptr);
@@ -85,15 +87,14 @@ const int Database::InsertTelemetry(const TelemetryFrame &tframe , uint64_t rece
         return 1;
     }
 
-    //Frame kid baby frame...frame bébé(In frence accent)
-    TelemetryFrame frame;
 
     //Fill in the placeholder values we set up in the SQL as '?' using bind
-    sqlite3_bind_text(stmt,1,frame.sat_id.c_str(),-1,SQLITE_TRANSIENT);//Converting to c.str as we need cstyle string not C++
-    sqlite3_bind_int64(stmt,2,frame.timestamp_ms);
-    sqlite3_bind_double(stmt,3,frame.battery);
-    sqlite3_bind_double(stmt,4,frame.temp_c);
-    sqlite3_bind_int64(stmt,5,received_ms);
+    sqlite3_bind_text(stmt,1,tframe.sat_id.c_str(),-1,SQLITE_TRANSIENT);//Converting to c.str as we need cstyle string not C++
+    sqlite3_bind_int64(stmt,2,tframe.timestamp_ms);
+    sqlite3_bind_int64(stmt,3,tframe.sequence);
+    sqlite3_bind_double(stmt,4,tframe.battery);
+    sqlite3_bind_double(stmt,5,tframe.temp_c);
+    sqlite3_bind_int64(stmt,6,received_ms);
 
     rc = sqlite3_step(stmt);
     sqlite3_finalize(stmt);

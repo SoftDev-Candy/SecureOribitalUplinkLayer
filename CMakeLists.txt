@@ -17,9 +17,9 @@ target_include_directories(sqlite3 PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/external/sqlite
 )
 
-add_executable(SOUL Server/main.cpp
-        Server/SatelliteSim.cpp
-        Server/SatelliteSim.hpp
+add_executable(SOUL ReciverServer/main.cpp
+        ReciverServer/SatelliteSim.cpp
+        ReciverServer/SatelliteSim.hpp
         Common/TelemetryFrame.hpp
         Common/TelemetryFrame.cpp
         Common/FrameCodec.cpp
@@ -28,13 +28,15 @@ add_executable(SOUL Server/main.cpp
         Database/Database.hpp
 )
 
-add_executable(Client Hub/main.cpp
-        Hub/TelemetryHub.cpp
-        Hub/TelemetryHub.hpp
+add_executable(Client SatelliteSender/main.cpp
+        SatelliteSender/TelemetryHub.cpp
+        SatelliteSender/TelemetryHub.hpp
         Common/TelemetryFrame.cpp
         Common/TelemetryFrame.hpp
         Common/FrameCodec.cpp
         Common/FrameCodec.hpp
+        simulation/SimulationState.cpp
+        simulation/SimulationState.hpp
 
 )
 
