@@ -5,46 +5,35 @@
 #include "TelemetryHub.hpp"
 
 #include <iostream>
+
+#include "../ReciverServer/SatelliteSim.hpp"
+#include "../simulation/SimulationState.hpp"
 using boost::asio::ip::tcp;
 
 
 void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 {
 int pass = 0;
+
+    SimulationState Simstate("SAT_1" , 100.0 , 44.6);
+
     while (true)
     {
         //TelemetryFrame Object
         TelemetryFrame tf;
+        tf = Simstate.MakeNextFrame();
 
         //FrameCodec Object
         FrameCodec Frame;
 
+        /*
         //Lets get the current point in time from clock//
         //Lets get the duration Epoch from its start
         auto duration  = std::chrono::system_clock::now().time_since_epoch();
 
         //Conversion to store it in time stamp
         uint64_t timestamp_val = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-
-       if (pass == 0) //Telemetry Data
-       {
-
-           tf.sat_id = "SAT_1";
-           tf.sequence = 1;
-           tf.timestamp_ms = timestamp_val;
-           tf.battery =100;
-           tf.temp_c = 44.6;
-
-       }
-        else if (pass != 0)
-        {
-
-            tf.sequence++;
-            tf.timestamp_ms = timestamp_val;
-            tf.battery--;
-            tf.temp_c++;
-
-        }
+        */
 
         //Convert To Json
         std::string TelemetryJSON = tf.ToJson();

@@ -10,11 +10,16 @@
 class SimulationState
 {
 private:
-
-
+    //Copied var from TelemetryFrame class
+    std::string sat_id{};
+    uint64_t sequence{};
+    float battery{};
+    float temp_c{};
 
 public:
-TelemetryFrame* frame;
+    SimulationState(const std::string& id,float bat,float temp);
+
+ TelemetryFrame MakeNextFrame();
 
 };
 
