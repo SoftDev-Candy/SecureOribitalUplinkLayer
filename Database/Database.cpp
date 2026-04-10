@@ -33,6 +33,8 @@ return 0;
 int Database::CreateTable()
 {    //Create SQL table named telemetry if it doesn't exist already//
 
+    //FIXME -- AFTER DATABASE IS CREATED IT NEEDS TO CHECK IF THE DATA WAS CHANGED OR NOT it doesnt add another coloumn on its own
+
     const char* sql =   "CREATE TABLE IF NOT EXISTS Telemetry("
                         "id                 INTEGER PRIMARY KEY AUTOINCREMENT, "
                         "Satellite_name     TEXT NOT NULL, "
@@ -90,8 +92,8 @@ const int Database::InsertTelemetry(const TelemetryFrame &tframe , uint64_t rece
 
     //Fill in the placeholder values we set up in the SQL as '?' using bind
     sqlite3_bind_text(stmt,1,tframe.sat_id.c_str(),-1,SQLITE_TRANSIENT);//Converting to c.str as we need cstyle string not C++
-    sqlite3_bind_int64(stmt,2,tframe.timestamp_ms);
-    sqlite3_bind_int64(stmt,3,tframe.sequence);
+    sqlite3_bind_int64(stmt,2,tframe.sequence);
+    sqlite3_bind_int64(stmt,3,tframe.timestamp_ms);
     sqlite3_bind_double(stmt,4,tframe.battery);
     sqlite3_bind_double(stmt,5,tframe.temp_c);
     sqlite3_bind_int64(stmt,6,received_ms);

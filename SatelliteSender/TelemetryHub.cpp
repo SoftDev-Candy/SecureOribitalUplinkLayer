@@ -13,9 +13,10 @@ using boost::asio::ip::tcp;
 
 void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 {
-int pass = 0;
+    //FrameCodec Object
+    FrameCodec Frame;
 
-    SimulationState Simstate("SAT_1" , 100.0 , 44.6);
+    SimulationState Simstate("SAT_1" , 100.0f , 44.6f);
 
     while (true)
     {
@@ -23,8 +24,7 @@ int pass = 0;
         TelemetryFrame tf;
         tf = Simstate.MakeNextFrame();
 
-        //FrameCodec Object
-        FrameCodec Frame;
+
 
         /*
         //Lets get the current point in time from clock//
@@ -67,7 +67,6 @@ int pass = 0;
         //Call std::this_thread::sleep_until() with the future time point
         std::this_thread::sleep_until(wakeupTime);
 
-        pass++;
 
     }
 
