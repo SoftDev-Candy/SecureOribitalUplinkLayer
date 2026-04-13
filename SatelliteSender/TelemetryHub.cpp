@@ -4,7 +4,9 @@
 
 #include "TelemetryHub.hpp"
 
+#include <chrono>
 #include <iostream>
+#include <thread>
 
 #include "../ReciverServer/SatelliteSim.hpp"
 #include "../simulation/SimulationState.hpp"

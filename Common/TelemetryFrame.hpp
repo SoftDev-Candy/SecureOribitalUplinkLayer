@@ -6,6 +6,7 @@
 #define SOUL_TELEMETRYFRAME_H
 
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <boost/json.hpp>
 

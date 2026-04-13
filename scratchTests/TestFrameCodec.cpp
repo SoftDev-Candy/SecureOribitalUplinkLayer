@@ -14,8 +14,8 @@
         tf.sat_id = "SAT_1";
         tf.sequence = 482094824;
         tf.timestamp_ms = 749284738947;
-        tf.battery =89.3;
-        tf.temp_c = 44.6;
+        tf.battery = 89.3f;
+        tf.temp_c = 44.6f;
 
         std::string tojsontest1= tf.ToJson();
         std::printf("%s\n", tojsontest1.c_str());

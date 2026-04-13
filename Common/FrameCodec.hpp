@@ -5,7 +5,9 @@
 #ifndef SOUL_FRAMECODEC_HPP
 #define SOUL_FRAMECODEC_HPP
 
+#include <cstdint>
 #include <string>
+#include <vector>
 #include <boost/asio/ip/tcp.hpp>
 
 class FrameCodec

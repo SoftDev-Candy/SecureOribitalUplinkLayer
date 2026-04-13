@@ -4,8 +4,8 @@
 
 #ifndef SOUL_DATABASE_HPP
 #define SOUL_DATABASE_HPP
-#include <boost/mp11/list.hpp>
 
+#include <cstdint>
 #include "../Common/TelemetryFrame.hpp"
 #include "../external/sqlite/sqlite3.h"
 

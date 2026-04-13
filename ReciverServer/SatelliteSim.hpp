@@ -5,11 +5,13 @@
 #ifndef CHATSERVER_CHATSERVER_H
 #define CHATSERVER_CHATSERVER_H
 
-#include<iostream>
-#include<boost/asio.hpp>
-#include<boost/thread.hpp>
-#include<array>
-#include<mutex>
+#include <array>
+#include <iostream>
+#include <mutex>
+#include <string>
+#include <unordered_map>
+
+#include <boost/asio.hpp>
 
 #include "../Common/FrameCodec.hpp"
 #include "../Common/TelemetryFrame.hpp"

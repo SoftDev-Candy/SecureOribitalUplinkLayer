@@ -2,6 +2,8 @@
 // Created by Candy on 4/9/26.
 //
 
+#include <chrono>
+
 #include "SimulationState.hpp"
 
 //Constructor for Simulation State Class

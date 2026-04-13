@@ -5,6 +5,7 @@
 # CMake build directories
 cmake-build-*/
 build/
+build-*/
 out/
 
 # Compiled object files
