@@ -111,9 +111,9 @@ endif()
 # Main server/receiver executable.
 
 add_executable(SOUL
-        ReciverServer/main.cpp
-        ReciverServer/SatelliteSim.cpp
-        ReciverServer/SatelliteSim.hpp
+        ReceiverServer/main.cpp
+        ReceiverServer/SatelliteSim.cpp
+        ReceiverServer/SatelliteSim.hpp
         Common/TelemetryFrame.hpp
         Common/TelemetryFrame.cpp
         Common/FrameCodec.cpp

@@ -8,7 +8,7 @@
 #include <iostream>
 #include <thread>
 
-#include "../ReciverServer/SatelliteSim.hpp"
+#include "../ReceiverServer/SatelliteSim.hpp"
 #include "../simulation/SimulationState.hpp"
 using boost::asio::ip::tcp;
 
