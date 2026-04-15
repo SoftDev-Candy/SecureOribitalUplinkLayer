@@ -1,15 +1,16 @@
 //
-// Created by Candy on 4/13/26.
+// Created by Candy on 4/14/2026.
 //
 
-#include <QApplication>
+#include "mainwindow.h"
+#include<QApplication>
 
-#include "mainwindow.hpp"
-
-int main(int argc, char *argv[])
+int main(int argc , char *argv[])
 {
-    QApplication app(argc, argv);
-    MainWindow window;
+    QApplication a(argc , argv);
+    mainwindow window;
     window.show();
-    return app.exec();
+    window.LoadLatestTelemetry();
+
+    return QCoreApplication::exec();
 }

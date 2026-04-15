@@ -130,7 +130,8 @@ add_executable(Client
         Common/FrameCodec.cpp
         Common/FrameCodec.hpp
         simulation/SimulationState.cpp
-        simulation/SimulationState.hpp)
+        simulation/SimulationState.hpp
+        )
 
 add_executable(Test
         scratchTests/TestFrameCodec.cpp
@@ -146,12 +147,13 @@ if(SOUL_BUILD_UI)
 
     if(Qt6_FOUND)
         add_executable(UserInterface
-                ui/main.cpp
-                ui/mainwindow.cpp
-                ui/mainwindow.hpp
-                ui/mainwindow.ui)
+            ui/main.cpp
+            ui/mainwindow.h
+            ui/mainwindow.cpp
+            ui/mainwindow.ui
+        )
 
-        target_link_libraries(UserInterface PRIVATE Qt6::Core Qt6::Gui Qt6::Widgets)
+        target_link_libraries(UserInterface PRIVATE sqlite3 Qt6::Core Qt6::Gui Qt6::Widgets)
     else()
         message(WARNING
                 "Qt6 was not found, so the UserInterface target will not be built. "

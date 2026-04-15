@@ -1,18 +1,262 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QWidget" name="MainWindow">
+ <class>mainwindow</class>
+ <widget class="QWidget" name="mainwindow">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1121</width>
-    <height>647</height>
+    <width>1048</width>
+    <height>743</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Form</string>
   </property>
+  <widget class="QWidget" name="layoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>0</y>
+     <width>171</width>
+     <height>201</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="SatelliteData_Left">
+    <item>
+     <layout class="QHBoxLayout" name="SatelliteName_Layout">
+      <item>
+       <widget class="QLabel" name="SatelliteName_Header">
+        <property name="text">
+         <string>SatelliteName : </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="SatelliteName_Label">
+        <property name="text">
+         <string>Name</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="LinkStatus_Layout">
+      <item>
+       <widget class="QLabel" name="LinkStatus_Header">
+        <property name="text">
+         <string>LinkStatus :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="LinkStatus_Connection">
+        <property name="text">
+         <string>Disconnected</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="PacketLoss_Layout">
+      <item>
+       <widget class="QLabel" name="PacketLoss_Header">
+        <property name="text">
+         <string>PacketLoss :</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="PacketLoss_Connection">
+        <property name="text">
+         <string>0%</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="Latency_Layout">
+      <item>
+       <widget class="QLabel" name="Latency_Header">
+        <property name="text">
+         <string>Latency : </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="Latency_Data">
+        <property name="text">
+         <string>0 ms</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="Battery_Layout">
+      <item>
+       <widget class="QLabel" name="Battery_Header">
+        <property name="text">
+         <string>Battery : </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="Battery_Data">
+        <property name="text">
+         <string>100 %</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="Temprature_Layout">
+      <item>
+       <widget class="QLabel" name="Latency_Header_3">
+        <property name="text">
+         <string>Temprature : </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="Temprature_Data">
+        <property name="text">
+         <string> 0 . 0 C </string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QTableWidget" name="DatabaseTable">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>480</y>
+     <width>711</width>
+     <height>251</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+     <horstretch>2</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="sizeIncrement">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="cursor" stdset="0">
+    <cursorShape>SizeBDiagCursor</cursorShape>
+   </property>
+   <property name="layoutDirection">
+    <enum>Qt::LayoutDirection::LeftToRight</enum>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Shadow::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>4</number>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+   </property>
+   <property name="autoScroll">
+    <bool>false</bool>
+   </property>
+   <property name="autoScrollMargin">
+    <number>7</number>
+   </property>
+   <property name="alternatingRowColors">
+    <bool>true</bool>
+   </property>
+   <property name="rowCount">
+    <number>10</number>
+   </property>
+   <property name="supportedDragActions">
+    <set>Qt::DropAction::CopyAction|Qt::DropAction::LinkAction|Qt::DropAction::MoveAction|Qt::DropAction::TargetMoveAction</set>
+   </property>
+   <attribute name="horizontalHeaderVisible">
+    <bool>true</bool>
+   </attribute>
+   <attribute name="horizontalHeaderCascadingSectionResizes">
+    <bool>true</bool>
+   </attribute>
+   <attribute name="horizontalHeaderDefaultSectionSize">
+    <number>173</number>
+   </attribute>
+   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+    <bool>false</bool>
+   </attribute>
+   <attribute name="horizontalHeaderStretchLastSection">
+    <bool>false</bool>
+   </attribute>
+   <attribute name="verticalHeaderStretchLastSection">
+    <bool>false</bool>
+   </attribute>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <row/>
+   <column>
+    <property name="text">
+     <string>Sequence</string>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Timesent_ms</string>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Received_ms</string>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>PacketSize</string>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
+    </property>
+   </column>
+  </widget>
  </widget>
  <resources/>
  <connections/>
