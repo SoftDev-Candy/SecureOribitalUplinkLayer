@@ -17,6 +17,7 @@ public:
 
     //Look up data in DB and read it and then set values in the respective columns...
     void LoadLatestTelemetry();
+    const char* LoadDatabase();
 
 private:
     Ui::mainwindow *ui;

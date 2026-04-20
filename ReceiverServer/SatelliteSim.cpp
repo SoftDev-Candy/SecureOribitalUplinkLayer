@@ -114,7 +114,6 @@ void SatelliteSim::ReceiveTelemetry(tcp::socket &socket) const
         }
         if (!frame)
         {
-
             std::cerr<<"Frame was invalid";
             continue;
 

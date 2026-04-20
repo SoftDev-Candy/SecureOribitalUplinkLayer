@@ -26,8 +26,6 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
         TelemetryFrame tf;
         tf = Simstate.MakeNextFrame();
 
-
-
         /*
         //Lets get the current point in time from clock//
         //Lets get the duration Epoch from its start
