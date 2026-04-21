@@ -10,6 +10,17 @@ mainwindow::mainwindow(QWidget *parent)
     , ui(new Ui::mainwindow)
 {
     ui->setupUi(this);
+
+    //Creating a timer to run the RefreshTelemetryView function every 1000ms
+    //In constructor because we want qt to handle its creation and destruction so
+    //When the window is destroyed, the timer is destroyed too.
+    QTimer* refreshTimer = nullptr;
+    refreshTimer = new QTimer(this);
+    connect(refreshTimer , &QTimer::timeout ,this , &mainwindow::RefreshTelemetryView);
+    RefreshTelemetryView();
+
+    refreshTimer->start(1000);
+
 }
 
 mainwindow::~mainwindow()
@@ -17,10 +28,14 @@ mainwindow::~mainwindow()
     delete ui;
 }
 
-void mainwindow::LoadLatestTelemetry()
+void mainwindow::RefreshTelemetryView()
 {
+    //Clear contents in the table and reset the row count back to 0//
+    ui->DatabaseTable->clearContents();
+    ui->DatabaseTable->setRowCount(0);
+
     sqlite3* DB;
-    sqlite3_stmt* stmt;
+    sqlite3_stmt* stmt = nullptr;
 
     std::cout << "Current working directory: "
                 << std::filesystem::current_path() << "\n";
@@ -31,10 +46,10 @@ void mainwindow::LoadLatestTelemetry()
     {
         std::cerr<<"Failed to open database ERROR  : "<<sqlite3_errmsg(DB)<<"\n";
         sqlite3_close(DB);
+        return;
     }
     //Find size of Telemetry for rows
     int rows = 0;
-
 
     //find data in table
     const char* sql  = "SELECT Satellite_name, sequence , battery, temperature, received_ms, timestamp_ms "
@@ -56,31 +71,41 @@ void mainwindow::LoadLatestTelemetry()
                 sqlite3_int64 timestampMs = sqlite3_column_int64(stmt, 5);
                 int64_t latency = receivedMs - timestampMs;
 
-                if(satName != nullptr)
+                //Set Database row size here so we are able to store the data properly with accurate size//
+                ui->DatabaseTable->insertRow(rows);
+
+                if(rows == 0 && satName != nullptr)
                 {
-                    ui->SatelliteName_Label->setText(reinterpret_cast<const char*>(satName));
+
+                    ui->SatelliteName_Label->setText(QString::fromUtf8((reinterpret_cast<const char*>(satName))));
+                    //TODO -- Add a condition in Sender for sat_battery so we can deal with underflow condition//
+                    ui->Battery_Data->setText(QString::number(battery ,'f',2));
+                    ui->Temprature_Data->setText(QString::number(temperature ,'f' ,2 ));
+                    ui->Latency_Data->setText(QString::number(latency));
+
                 }
 
-                //TODO -- Add a condition in Sender for sat_battery so we can deal with underflow condition//
-                ui->Battery_Data->setText(QString::number(battery));
-                ui->Temprature_Data->setText(QString::number(temperature));
-                ui->Latency_Data->setText(QString::number(latency));
                 ui->DatabaseTable->setItem(rows,0,new QTableWidgetItem(QString::number(sequence)));
                 ui->DatabaseTable->setItem(rows,1,new QTableWidgetItem(QString::number(timestampMs)));
                 ui->DatabaseTable->setItem(rows,2,new QTableWidgetItem(QString::number(receivedMs)));
+                //TODO --- Calculate packet size in the backend and send it here and calculate date&time to add to database as well//
 
-                //TODO --- Calculate packet size in the backend and send it here//
+                rows++;
 
 
-rows++;
-
-            if (sqlite3_step(stmt) == SQLITE_DONE)
-            {
-                std::cerr<<"No data in the table"<<"\n";
-                break;
-            }
         }
-
+        if (rows == 0)
+        {
+            std::cerr<<"No data in the table"<<"\n";
+            ui->SatelliteName_Label->setText("N/A");
+            ui->Battery_Data->setText("N/A");
+            ui->Temprature_Data->setText("N/A");
+            ui->Latency_Data->setText("N/A");
+        }
+    }
+    else
+    {
+        std::cerr<<"Prepare has failed , Error in file mainwindow.cpp \n";
     }
 
     //Finalise the statement and then close the database when work is done//
@@ -92,4 +117,6 @@ rows++;
 const char * mainwindow::LoadDatabase()
 {
     //FIXME  - Separate database logic later here //
+
+    return nullptr;
 }

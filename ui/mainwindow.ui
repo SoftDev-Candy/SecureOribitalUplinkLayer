@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>0</y>
+     <y>20</y>
      <width>171</width>
      <height>201</height>
     </rect>
@@ -136,10 +136,10 @@
   <widget class="QTableWidget" name="DatabaseTable">
    <property name="geometry">
     <rect>
-     <x>180</x>
-     <y>480</y>
-     <width>711</width>
-     <height>251</height>
+     <x>70</x>
+     <y>500</y>
+     <width>911</width>
+     <height>241</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -154,6 +154,11 @@
      <height>0</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <family>Lucida Sans</family>
+    </font>
+   </property>
    <property name="cursor" stdset="0">
     <cursorShape>SizeBDiagCursor</cursorShape>
    </property>
@@ -163,14 +168,20 @@
    <property name="autoFillBackground">
     <bool>false</bool>
    </property>
+   <property name="frameShape">
+    <enum>QFrame::Shape::WinPanel</enum>
+   </property>
    <property name="frameShadow">
     <enum>QFrame::Shadow::Plain</enum>
    </property>
    <property name="lineWidth">
-    <number>4</number>
+    <number>5</number>
    </property>
    <property name="verticalScrollBarPolicy">
     <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+   </property>
+   <property name="sizeAdjustPolicy">
+    <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
    </property>
    <property name="autoScroll">
     <bool>false</bool>
@@ -249,6 +260,16 @@
    <column>
     <property name="text">
      <string>PacketSize</string>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Date &amp; Time</string>
     </property>
     <property name="font">
      <font>

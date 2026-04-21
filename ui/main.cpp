@@ -9,8 +9,7 @@ int main(int argc , char *argv[])
 {
     QApplication a(argc , argv);
     mainwindow window;
-    window.show();
-    window.LoadLatestTelemetry();
 
+    window.show();
     return QCoreApplication::exec();
 }

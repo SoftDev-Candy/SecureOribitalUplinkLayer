@@ -3,7 +3,6 @@
 //
 
 #include <chrono>
-
 #include "SimulationState.hpp"
 
 //Constructor for Simulation State Class
