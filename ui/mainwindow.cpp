@@ -14,7 +14,6 @@ mainwindow::mainwindow(QWidget *parent)
     //Creating a timer to run the RefreshTelemetryView function every 1000ms
     //In constructor because we want qt to handle its creation and destruction so
     //When the window is destroyed, the timer is destroyed too.
-    QTimer* refreshTimer = nullptr;
     refreshTimer = new QTimer(this);
     connect(refreshTimer , &QTimer::timeout ,this , &mainwindow::RefreshTelemetryView);
     RefreshTelemetryView();
@@ -82,6 +81,31 @@ void mainwindow::RefreshTelemetryView()
                     ui->Battery_Data->setText(QString::number(battery ,'f',2));
                     ui->Temprature_Data->setText(QString::number(temperature ,'f' ,2 ));
                     ui->Latency_Data->setText(QString::number(latency));
+
+                    //Calculate current time here //
+                    auto duration  = std::chrono::system_clock::now().time_since_epoch();
+                    //Conversion to store it in time stamp
+                    sqlite3_uint64 current_time = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+
+                    sqlite3_uint64 age_ms = current_time - receivedMs; // Age_ms is the time to check the status of the connection
+
+                    std::cout<<"Age ms value is : "<<age_ms<<"\n";
+
+                    if(age_ms < 3000)
+                    {
+                        ui->LinkStatus_Connection->setText("Connected");
+                    }
+
+                    else if(age_ms >= 3000 && age_ms <= 7000)
+                    {
+                        ui->LinkStatus_Connection->setText("Degraded");
+                    }
+
+                    else if (age_ms > 7000)
+                    {
+                        ui->LinkStatus_Connection->setText("Disconnected");
+                    }
+
 
                 }
 

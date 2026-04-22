@@ -22,6 +22,8 @@ public:
 
 private:
     Ui::mainwindow *ui;
+    QTimer* refreshTimer = nullptr;
+
 };
 
 #endif // MAINWINDOW_H
