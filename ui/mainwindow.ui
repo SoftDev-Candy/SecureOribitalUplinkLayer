@@ -281,7 +281,7 @@
   <widget class="QWidget" name="layoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>860</x>
+     <x>830</x>
      <y>20</y>
      <width>171</width>
      <height>201</height>
@@ -289,7 +289,7 @@
    </property>
    <layout class="QVBoxLayout" name="SatelliteData_Right">
     <item>
-     <layout class="QHBoxLayout" name="Battery_SatausLayout">
+     <layout class="QHBoxLayout" name="Battery_StatusLayout">
       <item>
        <widget class="QLabel" name="Battery_StatusHeader">
         <property name="text">

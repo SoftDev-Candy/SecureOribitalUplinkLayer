@@ -18,7 +18,7 @@ SimulationState::SimulationState(const std::string &id, float bat, float temp)
 TelemetryFrame SimulationState::MakeNextFrame()
 {
     sequence++;
-    battery -= 0.01f;
+    battery -= 1.0f;
     temp_c -= 0.02f;
 
     //FIXME - Technically need to have something like a public function I called this particular logic 3 times now lol

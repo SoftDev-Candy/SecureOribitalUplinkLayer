@@ -91,6 +91,7 @@ void mainwindow::RefreshTelemetryView()
 
                     std::cout<<"Age ms value is : "<<age_ms<<"\n";
 
+                    //Check if connection is stable or not and send it to the UI based on packet age//
                     if(age_ms < 3000)
                     {
                         ui->LinkStatus_Connection->setText("Connected");
@@ -105,6 +106,24 @@ void mainwindow::RefreshTelemetryView()
                     {
                         ui->LinkStatus_Connection->setText("Disconnected");
                     }
+
+                    //Checks for Battery Health and shows it in the UI
+                    if (battery < 30)
+                    {
+                        ui->Battery_StatusData->setText("Critical");
+                    }
+                    else if(battery >= 30 && battery <= 70)
+                    {
+                        ui->Battery_StatusData->setText("Normal");
+                    }
+
+                    else if (battery > 70)
+                    {
+                        ui->Battery_StatusData->setText("Good");
+                    }
+
+                    //TODO-- Add a temprature Range check here to make sure a statellite doesnt get to hot or cold..//
+
 
 
                 }
