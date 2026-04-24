@@ -121,10 +121,31 @@ void mainwindow::RefreshTelemetryView()
                     {
                         ui->Battery_StatusData->setText("Good");
                     }
+                    //TODO -- Add a battery temperature to logic to control battery temp if gets too hot//
 
-                    //TODO-- Add a temprature Range check here to make sure a statellite doesnt get to hot or cold..//
 
+                    //TODO-- Add a temperature Range check here to make sure a satellite doesnt get to hot or cold..//
 
+                    if (temperature < 0)
+                    {
+                        ui->Temp_StatusData->setText("Critical Low");
+                    }
+                    else if (temperature < 15)
+                    {
+                        ui->Temp_StatusData->setText("Low");
+                    }
+                    else if (temperature <= 60)
+                    {
+                        ui->Temp_StatusData->setText("Normal");
+                    }
+                    else if (temperature <= 75)
+                    {
+                        ui->Temp_StatusData->setText("High");
+                    }
+                    else
+                    {
+                        ui->Temp_StatusData->setText("Critical High");
+                    }
 
                 }
 
@@ -134,7 +155,6 @@ void mainwindow::RefreshTelemetryView()
                 //TODO --- Calculate packet size in the backend and send it here and calculate date&time to add to database as well//
 
                 rows++;
-
 
         }
         if (rows == 0)

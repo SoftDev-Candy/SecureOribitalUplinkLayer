@@ -281,9 +281,9 @@
   <widget class="QWidget" name="layoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>830</x>
+     <x>800</x>
      <y>20</y>
-     <width>171</width>
+     <width>223</width>
      <height>201</height>
     </rect>
    </property>
@@ -307,11 +307,29 @@
      </layout>
     </item>
     <item>
+     <layout class="QHBoxLayout" name="Health_StatusLayout">
+      <item>
+       <widget class="QLabel" name="Health_StatusHeader">
+        <property name="text">
+         <string>Battery : </string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="Health_StatusData">
+        <property name="text">
+         <string>Normal</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
      <layout class="QHBoxLayout" name="Temp_StatusLayout">
       <item>
        <widget class="QLabel" name="Temp_StatusHeader">
         <property name="text">
-         <string>Temprature : </string>
+         <string>Health :</string>
         </property>
        </widget>
       </item>
