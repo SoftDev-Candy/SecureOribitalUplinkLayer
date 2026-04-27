@@ -124,8 +124,6 @@ void mainwindow::RefreshTelemetryView()
                     //TODO -- Add a battery temperature to logic to control battery temp if gets too hot//
 
 
-                    //TODO-- Add a temperature Range check here to make sure a satellite doesnt get to hot or cold..//
-
                     if (temperature < 0)
                     {
                         ui->Temp_StatusData->setText("Critical Low");

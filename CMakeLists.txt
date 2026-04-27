@@ -131,7 +131,8 @@ add_executable(Client
         Common/FrameCodec.hpp
         simulation/SimulationState.cpp
         simulation/SimulationState.hpp
-        )
+        OrbitalRendering/Shader/ShaderSource.hpp
+)
 
 add_executable(Test
         scratchTests/TestFrameCodec.cpp
@@ -144,16 +145,33 @@ if(SOUL_BUILD_UI)
     # Build the Qt UI when Qt is available, but do not fail the whole project
     # on machines that only have the server/client dependencies installed.
     find_package(Qt6 QUIET COMPONENTS Core Gui Widgets)
+    find_package(Qt6 REQUIRED COMPONENTS OpenGLWidgets)
 
     if(Qt6_FOUND)
+
         add_executable(UserInterface
             ui/main.cpp
             ui/mainwindow.h
             ui/mainwindow.cpp
             ui/mainwindow.ui
+            OrbitalRendering/orbitview.cpp
+            OrbitalRendering/orbitview.hpp
+            OrbitalRendering/Shader/ShaderSource.hpp
+
+        )
+        target_link_libraries(UserInterface
+             PRIVATE
+                sqlite3
+                Qt6::Core
+                Qt6::Gui
+                Qt6::Widgets
+                Qt6::OpenGLWidgets
         )
 
-        target_link_libraries(UserInterface PRIVATE sqlite3 Qt6::Core Qt6::Gui Qt6::Widgets)
+        target_include_directories(UserInterface
+                PRIVATE
+                ${CMAKE_SOURCE_DIR}/OrbitalRendering
+        )
     else()
         message(WARNING
                 "Qt6 was not found, so the UserInterface target will not be built. "
