@@ -131,7 +131,7 @@ add_executable(Client
         Common/FrameCodec.hpp
         simulation/SimulationState.cpp
         simulation/SimulationState.hpp
-        OrbitalRendering/Shader/ShaderSource.hpp
+
 )
 
 add_executable(Test
@@ -157,6 +157,9 @@ if(SOUL_BUILD_UI)
             OrbitalRendering/orbitview.cpp
             OrbitalRendering/orbitview.hpp
             OrbitalRendering/Shader/ShaderSource.hpp
+                OrbitalRendering/render/ObjLoader.cpp
+                OrbitalRendering/render/ObjLoader.hpp
+                OrbitalRendering/render/MeshData.hpp
 
         )
         target_link_libraries(UserInterface
@@ -166,11 +169,13 @@ if(SOUL_BUILD_UI)
                 Qt6::Gui
                 Qt6::Widgets
                 Qt6::OpenGLWidgets
+                glm
         )
 
         target_include_directories(UserInterface
                 PRIVATE
                 ${CMAKE_SOURCE_DIR}/OrbitalRendering
+                external/glm
         )
     else()
         message(WARNING

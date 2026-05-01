@@ -60,7 +60,7 @@ void Orbitview::initializeGL()
          0.0f,  0.5f, 0.0f
     };
 
-    m_vbo.allocate(vertices , 1); //Upload data to the GPU
+    m_vbo.allocate(vertices , sizeof(vertices)); //Upload data to the GPU
 
     m_program = new QOpenGLShaderProgram(this);
     bool VertexCreated = m_program->addShaderFromSourceCode(
@@ -93,6 +93,10 @@ void Orbitview::initializeGL()
 
     m_program->bind(); //Bind that big ting
 
+    //Need to tell the GPU how to read the data
+    m_program->enableAttributeArray(0);
+    m_program->setAttributeBuffer(0,GL_FLOAT,0,3,3*sizeof(float));
+
     //Release me 💅 The pain make it stahp//
     m_vao.release();
     m_vbo.release();
@@ -106,6 +110,11 @@ void Orbitview::resizeGL(int w, int h)
 
 void Orbitview::paintGL()
 {
-    std::cout<<"PaintGL called\n";
-    glClear(GL_COLOR_BUFFER_BIT);
+    m_program->bind(); //Bind that big ting
+    m_vao.bind();
+
+    glDrawArrays(GL_TRIANGLES , 0, 3);
+
+    m_vao.release();
+    m_program->release();
 }
