@@ -10,6 +10,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
+#include "render/MeshData.hpp"
 
 
 QT_BEGIN_NAMESPACE
@@ -28,6 +29,7 @@ class Orbitview : public QOpenGLWidget , protected QOpenGLFunctions
 private:
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
+    QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
     QOpenGLShaderProgram *m_program;
 
 
@@ -44,6 +46,10 @@ public:
     void resizeGL(int w ,int h)override;
     //Basically Draw the scene
     void paintGL()override;
+
+   //Adding Mesh Data here
+    MeshData mesh;
+    int meshindexCount = 0;
 
 
 

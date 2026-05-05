@@ -7,7 +7,7 @@
 #include<string>
 #include"MeshData.hpp"
 
-bool LoadObjFromPos(const std::string& path , MeshData& meshout);
+bool LoadObjToMeshData(const std::string& path , MeshData& meshout);
 
 class ObjLoader {
 

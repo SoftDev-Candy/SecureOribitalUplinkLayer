@@ -6,8 +6,11 @@
 #include <fstream>
 #include <iostream>
 #include<sstream>
+#include <unordered_map>
 #include<glm/vec2.hpp>
 #include<glm/vec3.hpp>
+
+
 static int ResolveObjIndex(int idx , int listSize)
 {
     //OBJ indices are 1-based.
@@ -104,12 +107,10 @@ struct VertexKeyHash
     }
 };
 
-bool LoadObjFromPos(const std::string &path, MeshData &Data)
+bool LoadObjToMeshData(const std::string &path, MeshData &Data)
 {
-
-    int vCount = 0;
-    int vnCount = 0;
-    int vtCount = 0;
+    Data.vertices.clear();
+    Data.indices.clear();
     int fCount = 0;
     // map (v,vt,vn) -> packed vertex index (so we don't duplicate vertices constantly)
     std::unordered_map<VertexKey, unsigned int, VertexKeyHash> vertexMap;
@@ -145,9 +146,10 @@ std::string line;
         {
             float x , y, z;
             glm::vec3 pos;
-            iss>>type>>pos.x>>pos.y>>pos.z;
+            iss >> pos.x >> pos.y >> pos.z;
             positions.push_back(pos);
-        }else if(line.rfind("f " , 0) == 0)
+        }
+        else if (type == "f")
         {
             fCount++;
 
@@ -210,9 +212,32 @@ std::string line;
                     // Already made this exact vertex combo before
                     faceVertexIndices.push_back(it->second);
                 }
-            }
 
+            }
+            if (faceVertexIndices.size() >= 3)
+            {
+                for (size_t i = 1; i + 1 < faceVertexIndices.size(); i++)
+                {
+                    Data.indices.push_back(faceVertexIndices[0]);
+                    Data.indices.push_back(faceVertexIndices[i]);
+                    Data.indices.push_back(faceVertexIndices[i + 1]);
+                }
+            }
+        }
+        else if (type == "vt")
+        {
+            glm::vec2 uv;
+            iss >> uv.x >> uv.y;
+            uvs.push_back(uv);
+        }
+        else if (type == "vn")
+        {
+            glm::vec3 n;
+            iss >> n.x >> n.y >> n.z;
+            normals.push_back(n);
         }
     }
+
+    return true;
 }
 

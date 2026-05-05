@@ -7,31 +7,34 @@
 
 const char* VertexShader()
 {
+    return R"(
+        #version 330 core
 
-return R"(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
+        layout(location = 0) in vec3 aPos;
+        layout(location = 1) in vec2 aUV;
+        layout(location = 2) in vec3 aNormal;
 
-    void main()
-    {
-        gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
-    }
-)";
+        uniform mat4 uMVP;
+
+        void main()
+        {
+            gl_Position = uMVP * vec4(aPos, 1.0);
+        }
+    )";
 }
 
 const char* FragmentShader()
 {
+    return R"(
+        #version 330 core
 
-  return R"(
-    #version 330 core
-    out vec4 FragColor;
+        out vec4 FragColor;
 
-    void main()
-    {
-        FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    }
+        void main()
+        {
+            FragColor = vec4(0.1, 0.35, 1.0, 1.0);
+        }
     )";
-
 }
 
 #endif //SOUL_SHADERSOURCE_HPP

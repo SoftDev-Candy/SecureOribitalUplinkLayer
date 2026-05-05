@@ -161,6 +161,7 @@ if(SOUL_BUILD_UI)
                 OrbitalRendering/render/ObjLoader.hpp
                 OrbitalRendering/render/MeshData.hpp
 
+
         )
         target_link_libraries(UserInterface
              PRIVATE
@@ -169,7 +170,7 @@ if(SOUL_BUILD_UI)
                 Qt6::Gui
                 Qt6::Widgets
                 Qt6::OpenGLWidgets
-                glm
+
         )
 
         target_include_directories(UserInterface
