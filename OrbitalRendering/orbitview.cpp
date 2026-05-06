@@ -24,6 +24,9 @@ void Orbitview::initializeGL()
 {
     initializeOpenGLFunctions();
     glClearColor(0.05f, 0.08f, 0.12f, 1.0f);
+
+    //Load obj here and load it now if not loaded god help us all
+
     LoadObjToMeshData("C:/SOUL/assets/Earth.obj",mesh);
 
    bool Vao_created = m_vao.create();//Creates the OpenGL VAO
@@ -127,6 +130,10 @@ void Orbitview::resizeGL(int w, int h)
 
 void Orbitview::paintGL()
 {
+    earthRotation += 0.2f;
+
+    //TODO - Calculate Earth's proper rotation here using Quaternion.///
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!m_program)
@@ -140,6 +147,9 @@ void Orbitview::paintGL()
 
     //scaling the size of the object
     model.scale(0.3f);
+
+    //Rotate the object here
+    model.rotate(earthRotation,0.0,1.0,0.0f);
 
     QMatrix4x4 view;
     view.setToIdentity();
@@ -156,6 +166,7 @@ void Orbitview::paintGL()
     QMatrix4x4 mvp = projection * view * model;
 
     m_program->setUniformValue("uMVP", mvp);
+    update();
 
     glDrawElements(GL_TRIANGLES, meshindexCount, GL_UNSIGNED_INT, nullptr);
     m_vao.release();

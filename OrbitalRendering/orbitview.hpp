@@ -51,6 +51,9 @@ public:
     MeshData mesh;
     int meshindexCount = 0;
 
+    //Adding rotation//
+    float earthRotation = 0.0f;
+
 
 
 private:
