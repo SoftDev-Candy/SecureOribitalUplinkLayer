@@ -10,6 +10,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
+#include <QOpenGLTexture>
 #include "render/MeshData.hpp"
 
 
@@ -30,7 +31,7 @@ private:
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
-    QOpenGLShaderProgram *m_program;
+    QOpenGLShaderProgram *program;
 
 
 public:
@@ -53,6 +54,10 @@ public:
 
     //Adding rotation//
     float earthRotation = 0.0f;
+
+    //Day and night texture to showcase texture performance
+    QOpenGLTexture* dayTexture = nullptr;
+    QOpenGLTexture* nightTexture = nullptr;
 
 
 

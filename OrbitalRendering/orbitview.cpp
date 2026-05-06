@@ -9,6 +9,8 @@
 #include<QDebug>
 #include<iostream>
 #include<QMatrix4x4>
+#include <QImage>
+#include <QOpenGLTexture>
 #include "render/ObjLoader.hpp"
 
 
@@ -23,6 +25,39 @@ Orbitview::~Orbitview()
 void Orbitview::initializeGL()
 {
     initializeOpenGLFunctions();
+
+    //Load and initialize texture here
+    QImage dayImage("C:/SOUL/assets/Texture/earth albedo.jpg");
+    QImage nightImage("C:/SOUL/assets/Texture/earth night_lights_modified.png");
+
+    //Throw error if texture obj is NUll
+    if (dayImage.isNull())
+    {
+        qDebug() << "Failed to load day texture";
+    }
+    else
+    {
+        dayImage = dayImage.convertToFormat(QImage::Format_RGBA8888);
+        dayTexture = new QOpenGLTexture(dayImage.mirrored());
+        dayTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+        dayTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+        dayTexture->setWrapMode(QOpenGLTexture::Repeat);
+    }
+
+    //check if nighttexture is NULL if not bull then initialize it in the right format
+    if (nightImage.isNull())
+    {
+        qDebug() << "Failed to load night texture";
+    }
+    else
+    {
+        nightImage = nightImage.convertToFormat(QImage::Format_RGBA8888);
+        nightTexture = new QOpenGLTexture(nightImage.mirrored());
+        nightTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+        nightTexture->setMagnificationFilter(QOpenGLTexture::Linear);
+        nightTexture->setWrapMode(QOpenGLTexture::Repeat);
+    }
+
     glClearColor(0.05f, 0.08f, 0.12f, 1.0f);
 
     //Load obj here and load it now if not loaded god help us all
@@ -76,51 +111,51 @@ void Orbitview::initializeGL()
     std::cout << "Vertices: " << mesh.vertices.size() << "\n";
     std::cout << "Indices: " << meshindexCount << "\n";
     //
-    m_program = new QOpenGLShaderProgram(this);
-    bool VertexCreated = m_program->addShaderFromSourceCode(
+    program = new QOpenGLShaderProgram(this);
+    bool VertexCreated = program->addShaderFromSourceCode(
     QOpenGLShader::Vertex,
     VertexShader());
 
     if (!VertexCreated)
     {
         qDebug().noquote() << "Vertex shader compilation failed:";
-        qDebug().noquote() << m_program->log();
+        qDebug().noquote() << program->log();
     }
 
-    bool FragmentCreated = m_program->addShaderFromSourceCode(
+    bool FragmentCreated = program->addShaderFromSourceCode(
         QOpenGLShader::Fragment,
         FragmentShader());
 
     if (!FragmentCreated)
     {
         qDebug().noquote() << "Fragment shader compilation failed:";
-        qDebug().noquote() << m_program->log();
+        qDebug().noquote() << program->log();
     }
 
-    bool linked = m_program->link(); // Link the shaders to the GPU
+    bool linked = program->link(); // Link the shaders to the GPU
 
     if (!linked)
     {
         qDebug().noquote() << "Shader program link failed:";
-        qDebug().noquote() << m_program->log();
+        qDebug().noquote() << program->log();
     }
 
-    m_program->bind(); //Bind that big ting
+    program->bind(); //Bind that big ting
 
     //Need to tell the GPU how to read the data
-    m_program->enableAttributeArray(0); // position
-    m_program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 8 * sizeof(float));
+    program->enableAttributeArray(0); // position
+    program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 8 * sizeof(float));
 
-    m_program->enableAttributeArray(1); // UV
-    m_program->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 2, 8 * sizeof(float));
+    program->enableAttributeArray(1); // UV
+    program->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 2, 8 * sizeof(float));
 
-    m_program->enableAttributeArray(2); // normal
-    m_program->setAttributeBuffer(2, GL_FLOAT, 5 * sizeof(float), 3, 8 * sizeof(float));
+    program->enableAttributeArray(2); // normal
+    program->setAttributeBuffer(2, GL_FLOAT, 5 * sizeof(float), 3, 8 * sizeof(float));
     //Release me 💅 The pain make it stahp//
     glEnable(GL_DEPTH_TEST);
     m_vao.release();
     m_vbo.release();
-    m_program->release();
+    program->release();
 }
 
 void Orbitview::resizeGL(int w, int h)
@@ -136,10 +171,10 @@ void Orbitview::paintGL()
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (!m_program)
+    if (!program)
         return;
 
-    m_program->bind(); //Bind that big ting
+    program->bind(); //Bind that big ting
     m_vao.bind();
 
     QMatrix4x4 model;
@@ -165,10 +200,33 @@ void Orbitview::paintGL()
 
     QMatrix4x4 mvp = projection * view * model;
 
-    m_program->setUniformValue("uMVP", mvp);
+    QMatrix3x3 normalMatrix = model.normalMatrix();
+
+    //Set Uniforms
+    program->setUniformValue("uMVP", mvp);
+    program->setUniformValue("uModel", model);
+    program->setUniformValue("uNormalMatrix", normalMatrix);
+
+    program->setUniformValue("uSunDir", QVector3D(-1.0f, 0.2f, -0.3f).normalized());
+    program->setUniformValue("uViewPos", QVector3D(0.0f, 0.0f, 3.0f));
+    program->setUniformValue("uMVP", mvp);
+
+    //Bind Textures here
+    if (dayTexture)
+    {
+        dayTexture->bind(0);
+        program->setUniformValue("uDayMap", 0);
+    }
+
+    if (nightTexture)
+    {
+        nightTexture->bind(1);
+        program->setUniformValue("uNightMap", 1);
+    }
+
     update();
 
     glDrawElements(GL_TRIANGLES, meshindexCount, GL_UNSIGNED_INT, nullptr);
     m_vao.release();
-    m_program->release();
+    program->release();
 }
