@@ -58,13 +58,16 @@ const char* FragmentShader()
             vec3 N = normalize(vNormal);
             vec3 L = normalize(-uSunDir);
 
-            float dayAmount = dot(N, L);
-            dayAmount = smoothstep(-0.15, 0.25, dayAmount);
+            float lightAmount = dot(N, L);
+            float dayAmount = smoothstep(-0.01, 0.01, lightAmount);
 
             vec3 dayColor = texture(uDayMap, vUV).rgb;
             vec3 nightColor = texture(uNightMap, vUV).rgb;
 
-            vec3 earthColor = mix(nightColor, dayColor, dayAmount);
+            float diffuse = clamp(lightAmount, 0.0, 1.0);
+            vec3 litDay = dayColor * (0.20 + 0.80 * diffuse);
+            vec3 litNight = clamp(nightColor * 4.0, 0.0, 1.0);
+            vec3 earthColor = mix(litNight, litDay, dayAmount);
 
             FragColor = vec4(earthColor, 1.0);
         }

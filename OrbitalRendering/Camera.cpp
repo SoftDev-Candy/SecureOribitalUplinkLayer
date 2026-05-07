@@ -3,7 +3,7 @@
 //
 
 #include "Camera.hpp"
-#include "QtMath"
+#include <QtMath>
 
 Camera::Camera()
 {
@@ -18,10 +18,11 @@ QMatrix4x4 Camera::GetViewMatrix() const
     //calculate X Y Z on data provided
 
     float x = cam_distance * qCos(pitchRadius) * qSin(yawRadius);
-    float y = cam_distance * qSin(yawRadius);
+    float y = cam_distance * qSin(pitchRadius);
     float z =cam_distance * qCos(pitchRadius) * qCos(yawRadius);
 
-    QVector3D CameraPos = cam_target * QVector3D(x , y ,z);
+    // Build the eye position as an orbital offset from the current target.
+    QVector3D CameraPos = cam_target + QVector3D(x , y ,z);
 
     QMatrix4x4 view;
     view.setToIdentity();
@@ -44,12 +45,49 @@ QMatrix4x4 Camera::GetProjectionMatrix(float aspect) const
     return projection;
 }
 
+void Camera::AddYaw(float yaw_delta)
+{
+    cam_yaw += yaw_delta;
+
+}
+
+void Camera::AddPitch(float pitch_delta)
+{
+    cam_pitch += pitch_delta;
+
+    if (cam_pitch > 85.0f)
+        cam_pitch = 85.0f;
+
+    if (cam_pitch < -85.0f)
+        cam_pitch = -85.0f;
+
+}
+
+void Camera::AddZoom(float zoom_delta)
+{
+//Calculate zoom delta
+    cam_distance += zoom_delta;
+
+    //just basics if for checking distance based on scroll
+    if (cam_distance < cam_minDistance)
+    {
+    cam_distance = cam_minDistance;
+    }
+
+
+    if (cam_distance > cam_maxDistance)
+    {
+        cam_distance = cam_maxDistance;
+    }
+
+}
+
 //Reset the camera back to its original state
 void Camera::CameraReset()
 {
 
      cam_target = QVector3D(0.0f,0.0f,0.0f);
-     cam_distance = 4.0f;
+     cam_distance = 12.0f;
      cam_yaw = 0.0f;
      cam_pitch = 0.0f;
      cam_fov = 45.0f;

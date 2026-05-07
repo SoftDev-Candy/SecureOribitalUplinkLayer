@@ -21,6 +21,7 @@ public:
     void AddYaw(float yaw_delta);
     void AddPitch(float pitch_delta);
     void AddZoom(float zoom_delta);
+    void CameraControls();
 
     //Reset the camera back to its original state
     void CameraReset();

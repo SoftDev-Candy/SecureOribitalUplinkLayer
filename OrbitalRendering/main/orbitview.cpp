@@ -14,8 +14,38 @@
 #include "../render/ObjLoader.hpp"
 
 
+void Orbitview::wheelEvent(QWheelEvent *event)
+{
+    float zoomAmount = event->angleDelta().y() > 0 ? -0.5f : 0.5f;
+
+    _camera.AddZoom(zoomAmount);
+
+    update();
+}
+
+void Orbitview::mousePressEvent(QMouseEvent* event)
+{
+    lastMousePos = event->pos();
+}
+
+void Orbitview::mouseMoveEvent(QMouseEvent* event)
+{
+    QPoint delta = event->pos() - lastMousePos;
+    lastMousePos = event->pos();
+
+    if (event->buttons() & Qt::LeftButton)
+    {
+        _camera.AddYaw(delta.x() * 0.3f);
+        _camera.AddPitch(-delta.y() * 0.3f);
+
+        update();
+    }
+}
+
 Orbitview::Orbitview(QWidget *parent) : QOpenGLWidget(parent)
 {
+    setFocusPolicy(Qt::StrongFocus);
+    setMouseTracking(true);
 }
 
 Orbitview::~Orbitview()
@@ -186,17 +216,12 @@ void Orbitview::paintGL()
     //Rotate the object here
     model.rotate(earthRotation,0.0,1.0,0.0f);
 
-    QMatrix4x4 view;
-    view.setToIdentity();
+    QMatrix4x4 view = _camera.GetViewMatrix();
 
-    // Move camera/object relationship back so we can see the mesh
-    view.translate(0.0f, 0.0f, -5.0f);
+    //This calculates the aspect ratio
+    float aspect = height() > 0 ? float(width()) / float(height()) : 1.0f;
 
-    QMatrix4x4 projection;
-    projection.setToIdentity();
-
-    float aspect = width() > 0 ? float(width()) / float(height()) : 1.0f;
-    projection.perspective(45.0f, aspect, 0.1f, 100.0f);
+    QMatrix4x4 projection =_camera.GetProjectionMatrix(aspect);
 
     QMatrix4x4 mvp = projection * view * model;
 
@@ -207,9 +232,8 @@ void Orbitview::paintGL()
     program->setUniformValue("uModel", model);
     program->setUniformValue("uNormalMatrix", normalMatrix);
 
-    program->setUniformValue("uSunDir", QVector3D(-1.0f, 0.2f, -0.3f).normalized());
+    program->setUniformValue("uSunDir", QVector3D(-1.0f, 0.0f, 0.0f).normalized());
     program->setUniformValue("uViewPos", QVector3D(0.0f, 0.0f, 3.0f));
-    program->setUniformValue("uMVP", mvp);
 
     //Bind Textures here
     if (dayTexture)
@@ -224,9 +248,10 @@ void Orbitview::paintGL()
         program->setUniformValue("uNightMap", 1);
     }
 
-    update();
 
     glDrawElements(GL_TRIANGLES, meshindexCount, GL_UNSIGNED_INT, nullptr);
     m_vao.release();
     program->release();
+    update();
+
 }

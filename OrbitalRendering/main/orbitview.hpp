@@ -11,7 +11,11 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLTexture>
+#include <QPoint>
+#include <QWheelEvent>
+#include <QMouseEvent>
 #include "../render/MeshData.hpp"
+#include "Camera.hpp"
 
 
 QT_BEGIN_NAMESPACE
@@ -27,12 +31,17 @@ class Orbitview : public QOpenGLWidget , protected QOpenGLFunctions
 {
     Q_OBJECT
 
+
 private:
     QOpenGLVertexArrayObject m_vao;
     QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
     QOpenGLShaderProgram *program;
 
+protected:
+    void wheelEvent(QWheelEvent *event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
 
 public:
     //Constructor
@@ -59,7 +68,10 @@ public:
     QOpenGLTexture* dayTexture = nullptr;
     QOpenGLTexture* nightTexture = nullptr;
 
+    //Camera object
+    Camera _camera;
 
+    QPoint lastMousePos;
 
 private:
 };

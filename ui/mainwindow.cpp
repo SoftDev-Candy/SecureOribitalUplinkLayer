@@ -36,8 +36,8 @@ void mainwindow::RefreshTelemetryView()
     sqlite3* DB;
     sqlite3_stmt* stmt = nullptr;
 
-    std::cout << "Current working directory: "
-                << std::filesystem::current_path() << "\n";
+    // std::cout << "Current working directory: "
+    //             << std::filesystem::current_path() << "\n";
 
     const char* dbpath = "C:/SOUL/cmake-build-debug/Soul.db";
     int rc = sqlite3_open(dbpath,&DB);//Call the sqlite constructor
