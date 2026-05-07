@@ -3,13 +3,57 @@
 //
 
 #include "Camera.hpp"
-#include "ui_mainwindow.h"
+#include "QtMath"
 
+Camera::Camera()
+{
+    CameraReset();
+}
 
-void Camera::cameraMovement()
+QMatrix4x4 Camera::GetViewMatrix() const
+{
+    float yawRadius = qDegreesToRadians(cam_yaw);
+    float pitchRadius =qDegreesToRadians(cam_pitch);
+
+    //calculate X Y Z on data provided
+
+    float x = cam_distance * qCos(pitchRadius) * qSin(yawRadius);
+    float y = cam_distance * qSin(yawRadius);
+    float z =cam_distance * qCos(pitchRadius) * qCos(yawRadius);
+
+    QVector3D CameraPos = cam_target * QVector3D(x , y ,z);
+
+    QMatrix4x4 view;
+    view.setToIdentity();
+
+    view.lookAt(CameraPos , cam_target,QVector3D(0.0f,1.0f,0.0f));
+
+return view;
+}
+
+QMatrix4x4 Camera::GetProjectionMatrix(float aspect) const
+{
+    //Need a child class because it's not static so cant be called without its baby
+    QMatrix4x4 projection;
+
+    //Basically sets the projection to an identity matrix
+    projection.setToIdentity();
+
+    //Return perspective
+     projection.perspective(cam_fov, aspect, 0.1f, 100.0f);
+    return projection;
+}
+
+//Reset the camera back to its original state
+void Camera::CameraReset()
 {
 
-
-
+     cam_target = QVector3D(0.0f,0.0f,0.0f);
+     cam_distance = 4.0f;
+     cam_yaw = 0.0f;
+     cam_pitch = 0.0f;
+     cam_fov = 45.0f;
+     cam_minDistance = 1.5f;
+     cam_maxDistance = 20.0f;
 
 }
