@@ -4,14 +4,14 @@
 
 // You may need to build the project (run Qt uic code generator) to get "ui_Orbitview.h" resolved
 
-#include "orbitview.hpp"
-#include "Shader/ShaderSource.hpp"
+#include "main/orbitview.hpp"
+#include "../Shader/ShaderSource.hpp"
 #include<QDebug>
 #include<iostream>
 #include<QMatrix4x4>
 #include <QImage>
 #include <QOpenGLTexture>
-#include "render/ObjLoader.hpp"
+#include "../render/ObjLoader.hpp"
 
 
 Orbitview::Orbitview(QWidget *parent) : QOpenGLWidget(parent)
@@ -38,7 +38,7 @@ void Orbitview::initializeGL()
     else
     {
         dayImage = dayImage.convertToFormat(QImage::Format_RGBA8888);
-        dayTexture = new QOpenGLTexture(dayImage.mirrored());
+        dayTexture = new QOpenGLTexture(QImage(dayImage).flipped());
         dayTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
         dayTexture->setMagnificationFilter(QOpenGLTexture::Linear);
         dayTexture->setWrapMode(QOpenGLTexture::Repeat);
@@ -52,7 +52,7 @@ void Orbitview::initializeGL()
     else
     {
         nightImage = nightImage.convertToFormat(QImage::Format_RGBA8888);
-        nightTexture = new QOpenGLTexture(nightImage.mirrored());
+        nightTexture = new QOpenGLTexture(QImage(nightImage).flipped());
         nightTexture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
         nightTexture->setMagnificationFilter(QOpenGLTexture::Linear);
         nightTexture->setWrapMode(QOpenGLTexture::Repeat);
@@ -62,7 +62,7 @@ void Orbitview::initializeGL()
 
     //Load obj here and load it now if not loaded god help us all
 
-    LoadObjToMeshData("C:/SOUL/assets/Earth.obj",mesh);
+    LoadObjToMeshData("C:/SOUL/assets/sphere-cylcoords-1k.obj",mesh);
 
    bool Vao_created = m_vao.create();//Creates the OpenGL VAO
 
@@ -165,7 +165,7 @@ void Orbitview::resizeGL(int w, int h)
 
 void Orbitview::paintGL()
 {
-    earthRotation += 0.2f;
+    earthRotation += 0.3f;
 
     //TODO - Calculate Earth's proper rotation here using Quaternion.///
 
@@ -181,7 +181,7 @@ void Orbitview::paintGL()
     model.setToIdentity();
 
     //scaling the size of the object
-    model.scale(0.3f);
+    model.scale(0.009f);
 
     //Rotate the object here
     model.rotate(earthRotation,0.0,1.0,0.0f);

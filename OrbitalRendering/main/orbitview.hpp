@@ -11,7 +11,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLTexture>
-#include "render/MeshData.hpp"
+#include "../render/MeshData.hpp"
 
 
 QT_BEGIN_NAMESPACE

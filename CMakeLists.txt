@@ -154,12 +154,14 @@ if(SOUL_BUILD_UI)
             ui/mainwindow.h
             ui/mainwindow.cpp
             ui/mainwindow.ui
-            OrbitalRendering/orbitview.cpp
-            OrbitalRendering/orbitview.hpp
+                OrbitalRendering/main/orbitview.cpp
+                OrbitalRendering/main/orbitview.hpp
             OrbitalRendering/Shader/ShaderSource.hpp
                 OrbitalRendering/render/ObjLoader.cpp
                 OrbitalRendering/render/ObjLoader.hpp
                 OrbitalRendering/render/MeshData.hpp
+                OrbitalRendering/Camera.hpp
+                OrbitalRendering/Camera.cpp
 
 
         )
