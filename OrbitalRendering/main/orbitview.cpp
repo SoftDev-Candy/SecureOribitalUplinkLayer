@@ -50,7 +50,9 @@ Orbitview::Orbitview(QWidget *parent) : QOpenGLWidget(parent)
 
 Orbitview::~Orbitview()
 {
+
 }
+
 
 void Orbitview::initializeGL()
 {
@@ -58,7 +60,7 @@ void Orbitview::initializeGL()
 
     //Load and initialize texture here
     QImage dayImage("C:/SOUL/assets/Texture/earth albedo.jpg");
-    QImage nightImage("C:/SOUL/assets/Texture/earth night_lights_modified.png");
+    QImage nightImage("C:/SOUL/assets/Texture/2k_earth_nightmap.jpg");
 
     //Throw error if texture obj is NUll
     if (dayImage.isNull())
@@ -74,7 +76,7 @@ void Orbitview::initializeGL()
         dayTexture->setWrapMode(QOpenGLTexture::Repeat);
     }
 
-    //check if nighttexture is NULL if not bull then initialize it in the right format
+    //check if nighttexture is NULL if not null then initialize it in the right format
     if (nightImage.isNull())
     {
         qDebug() << "Failed to load night texture";
