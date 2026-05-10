@@ -157,11 +157,17 @@ if(SOUL_BUILD_UI)
                 OrbitalRendering/main/orbitview.cpp
                 OrbitalRendering/main/orbitview.hpp
             OrbitalRendering/Shader/ShaderSource.hpp
-                OrbitalRendering/render/ObjLoader.cpp
-                OrbitalRendering/render/ObjLoader.hpp
-                OrbitalRendering/render/MeshData.hpp
-                OrbitalRendering/Camera.hpp
-                OrbitalRendering/Camera.cpp
+                 OrbitalRendering/render/ObjLoader.cpp
+                 OrbitalRendering/render/ObjLoader.hpp
+                 OrbitalRendering/render/MeshData.hpp
+                 OrbitalRendering/Camera.hpp
+                 OrbitalRendering/Camera.cpp
+                OrbitalRendering/main/SatelliteVisual.cpp
+                OrbitalRendering/main/SatelliteVisual.hpp
+                OrbitalRendering/render/TexturedMesh.cpp
+                OrbitalRendering/render/TexturedMesh.hpp
+
+
 
 
         )

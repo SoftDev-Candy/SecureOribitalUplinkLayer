@@ -7,15 +7,14 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
-#include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
-#include <QOpenGLVertexArrayObject>
 #include <QOpenGLTexture>
 #include <QPoint>
 #include <QWheelEvent>
 #include <QMouseEvent>
-#include "../render/MeshData.hpp"
+#include "../render/TexturedMesh.hpp"
 #include "Camera.hpp"
+#include "SatelliteVisual.hpp"
 
 
 QT_BEGIN_NAMESPACE
@@ -33,43 +32,46 @@ class Orbitview : public QOpenGLWidget , protected QOpenGLFunctions
 
 
 private:
-    QOpenGLVertexArrayObject m_vao;
-    QOpenGLBuffer m_vbo{QOpenGLBuffer::VertexBuffer};
-    QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
-    QOpenGLShaderProgram *program;
+    QOpenGLShaderProgram *program = nullptr;
 
 protected:
+    // Zooms the camera in or out using the mouse wheel.
     void wheelEvent(QWheelEvent *event) override;
+    // Saves the mouse position so drag rotation can start from the right spot.
     void mousePressEvent(QMouseEvent* event) override;
+    // Rotates the camera while the left mouse button is dragged.
     void mouseMoveEvent(QMouseEvent* event) override;
 
 public:
-    //Constructor
+    // Builds the OpenGL widget and turns on the mouse input used by the camera.
     explicit Orbitview(QWidget *parent = nullptr);
 
-    //Destructor
+    // Cleans up the OpenGL resources owned by the widget before shutdown.
     ~Orbitview() override;
 
-    //Initialize openGl Function set up rendering , load shader etc ///
+    // Creates the shader program, uploads the Earth mesh, and loads the textures it needs.
     void initializeGL()override;
-    //update projection matrix and other size relate issue
+    // Keeps the OpenGL viewport matched to the widget size.
     void resizeGL(int w ,int h)override;
-    //Basically Draw the scene
+    // Draws the Earth and satellite with the current camera and shader uniforms.
     void paintGL()override;
-
-   //Adding Mesh Data here
-    MeshData mesh;
-    int meshindexCount = 0;
 
     //Adding rotation//
     float earthRotation = 0.0f;
 
-    //Day and night texture to showcase texture performance
-    QOpenGLTexture* dayTexture = nullptr;
+    //Earth mesh and day texture live together here so Orbitview stays smaller
+    TexturedMesh earthMesh;
+
+    //Satellite mesh uses the same shader for now so it can be added with minimal changes
+    TexturedMesh satelliteMesh;
+
+    //Night texture stays separate because the Earth shader still samples two maps
     QOpenGLTexture* nightTexture = nullptr;
 
     //Camera object
     Camera _camera;
+
+    SatelliteVisual satellite;
 
     QPoint lastMousePos;
 
