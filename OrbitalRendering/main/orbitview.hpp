@@ -14,6 +14,7 @@
 #include <QPoint>
 #include <QWheelEvent>
 #include <QMouseEvent>
+#include <array>
 #include "../render/TexturedMesh.hpp"
 #include "Camera.hpp"
 #include "SatelliteVisual.hpp"
@@ -32,14 +33,26 @@ class Orbitview : public QOpenGLWidget , protected QOpenGLFunctions
 {
     Q_OBJECT
 
+    struct SatelliteRenderState
+    {
+        // Name is what we line up with the UI table and the SQLite rows.
+        QString name;
+        // Visual holds the orbit math and model transform knobs.
+        SatelliteVisual visual;
+    };
 
 private:
+    // Shader for the textured Earth and the tiny satellite mesh.
     QOpenGLShaderProgram *program = nullptr;
+    // Separate little shader because orbit trails are just colored lines, not textured models.
     QOpenGLShaderProgram *orbitRingProgram = nullptr;
+    // Separate point shader so satellites do not vanish into the void the second we blink.
     QOpenGLShaderProgram *satelliteGlowProgram = nullptr;
+    // These buffers are reused for each satellite trail instead of making three separate copies.
     QOpenGLVertexArrayObject orbitRingVao;
     QOpenGLBuffer orbitRingVbo{QOpenGLBuffer::VertexBuffer};
     int orbitRingVertexCount = 0;
+    // Same idea here, one tiny glow point buffer reused for whichever satellite we are drawing.
     QOpenGLVertexArrayObject satelliteGlowVao;
     QOpenGLBuffer satelliteGlowVbo{QOpenGLBuffer::VertexBuffer};
 
@@ -64,12 +77,12 @@ public:
     void resizeGL(int w ,int h)override;
     // Draws the Earth and satellite with the current camera and shader uniforms.
     void paintGL()override;
-    // Stores which satellite the operator selected so the scene can decide whether to draw it.
+    // Stores which satellite the operator picked so we can highlight it in the scene.
     void SetSelectedSatellite(const QString& satelliteName);
-    // Stores the current link status for the selected satellite.
+    // Stores the current link status for the selected satellite so we can tint it a bit.
     void SetSatelliteLinkStatus(const QString& linkStatus);
 
-    //Adding rotation//
+    // Tiny Earth spin value so the planet does not just sit there looking suspicious.
     float earthRotation = 0.0f;
 
     //Earth mesh and day texture live together here so Orbitview stays smaller
@@ -81,13 +94,15 @@ public:
     //Night texture stays separate because the Earth shader still samples two maps
     QOpenGLTexture* nightTexture = nullptr;
 
-    //Camera object
+    // Camera object
     Camera _camera;
 
-    SatelliteVisual satellite;
+    // These are the three little orbit gremlins that match SAT_1, SAT_2, and SAT_3 in the backend.
+    std::array<SatelliteRenderState, 3> satellites;
     QString selectedSatelliteName;
     QString satelliteLinkStatus = "Disconnected";
 
+    // Mouse drag remembers the last click spot so orbit controls do not jump around like chaos.
     QPoint lastMousePos;
 
 private:

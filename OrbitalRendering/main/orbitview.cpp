@@ -102,6 +102,32 @@ const char* SatelliteGlowFragmentShader()
         }
     )";
 }
+
+QVector3D TrailColorForSatellite(int satelliteIndex)
+{
+    switch (satelliteIndex)
+    {
+    case 0:
+        return QVector3D(0.44f, 0.76f, 0.96f);
+    case 1:
+        return QVector3D(0.96f, 0.72f, 0.32f);
+    default:
+        return QVector3D(0.56f, 0.90f, 0.55f);
+    }
+}
+
+QVector3D GlowColorForSatellite(int satelliteIndex)
+{
+    switch (satelliteIndex)
+    {
+    case 0:
+        return QVector3D(0.76f, 0.92f, 1.0f);
+    case 1:
+        return QVector3D(1.0f, 0.86f, 0.48f);
+    default:
+        return QVector3D(0.76f, 1.0f, 0.72f);
+    }
+}
 }
 
 void Orbitview::wheelEvent(QWheelEvent *event)
@@ -136,16 +162,40 @@ Orbitview::Orbitview(QWidget *parent) : QOpenGLWidget(parent)
 {
     setFocusPolicy(Qt::StrongFocus);
     setMouseTracking(true);
+
+    // Set the three orbit visuals here once so the scene and the backend names stay in sync.
+    satellites[0].name = "SAT_1";
+    satellites[0].visual.orbitRadius = 2.10f;
+    satellites[0].visual.orbitSpeed = 18.0f;
+    satellites[0].visual.orbitTiltDeg = 8.0f;
+    satellites[0].visual.orbitPhaseDeg = 0.0f;
+    satellites[0].visual.scale = 0.00002f;
+
+    satellites[1].name = "SAT_2";
+    satellites[1].visual.orbitRadius = 2.55f;
+    satellites[1].visual.orbitSpeed = 13.0f;
+    satellites[1].visual.orbitTiltDeg = 28.0f;
+    satellites[1].visual.orbitPhaseDeg = 120.0f;
+    satellites[1].visual.scale = 0.00002f;
+
+    satellites[2].name = "SAT_3";
+    satellites[2].visual.orbitRadius = 2.95f;
+    satellites[2].visual.orbitSpeed = 10.0f;
+    satellites[2].visual.orbitTiltDeg = -24.0f;
+    satellites[2].visual.orbitPhaseDeg = 240.0f;
+    satellites[2].visual.scale = 0.00002f;
 }
 
 void Orbitview::SetSelectedSatellite(const QString& satelliteName)
 {
     selectedSatelliteName = satelliteName;
+    update();
 }
 
 void Orbitview::SetSatelliteLinkStatus(const QString& linkStatus)
 {
     satelliteLinkStatus = linkStatus;
+    update();
 }
 
 Orbitview::~Orbitview()
@@ -401,6 +451,13 @@ void Orbitview::resizeGL(int w, int h)
 void Orbitview::paintGL()
 {
     earthRotation += 0.03f;
+    float frameStep = 1.0f / 60.0f;
+
+    // Everybody moves every frame now, even before the operator clicks anything.
+    for (SatelliteRenderState& satelliteState : satellites)
+    {
+        satelliteState.visual.Update(frameStep);
+    }
 
     //TODO - Calculate Earth's proper rotation here using Quaternion.///
 
@@ -448,23 +505,41 @@ void Orbitview::paintGL()
 
     earthMesh.Draw(program, 0, "uDayMap");
 
-    if (!selectedSatelliteName.isEmpty())
+    // Now loop all satellites so they are always visible in the scene.
+    for (int satelliteIndex = 0; satelliteIndex < static_cast<int>(satellites.size()); ++satelliteIndex)
     {
-        satellite.Update(1.0f / 60.0f);
-        QMatrix4x4 satelliteModel = satellite.GetModelMatrix();
+        SatelliteRenderState& satelliteState = satellites[satelliteIndex];
+        SatelliteVisual& satelliteVisual = satelliteState.visual;
+
+        QMatrix4x4 satelliteModel = satelliteVisual.GetModelMatrix();
         QMatrix4x4 satelliteMvp = projection * view * satelliteModel;
         QMatrix3x3 satelliteNormalMatrix = satelliteModel.normalMatrix();
 
-        QVector3D trailColor(0.62f, 0.69f, 0.78f);
-        QVector3D glowColor(0.82f, 0.92f, 1.0f);
+        bool isSelected = !selectedSatelliteName.isEmpty() && satelliteState.name == selectedSatelliteName;
 
-        if (satelliteLinkStatus == "Degraded")
+        QVector3D trailColor = TrailColorForSatellite(satelliteIndex);
+        QVector3D glowColor = GlowColorForSatellite(satelliteIndex);
+
+        // If nothing is selected, keep everyone readable. If one is selected, dim the others a bit.
+        if (!selectedSatelliteName.isEmpty() && !isSelected)
+        {
+            trailColor *= 0.40f;
+            glowColor *= 0.40f;
+        }
+
+        if (isSelected)
+        {
+            trailColor *= 1.20f;
+            glowColor *= 1.25f;
+        }
+
+        if (isSelected && satelliteLinkStatus == "Degraded")
         {
             trailColor = QVector3D(0.88f, 0.72f, 0.32f);
             glowColor = QVector3D(1.0f, 0.82f, 0.38f);
         }
 
-        if (satelliteLinkStatus == "Disconnected")
+        if (isSelected && satelliteLinkStatus == "Disconnected")
         {
             trailColor = QVector3D(0.45f, 0.48f, 0.52f);
             glowColor = QVector3D(0.58f, 0.62f, 0.68f);
@@ -484,14 +559,12 @@ void Orbitview::paintGL()
                 float t = orbitRingVertexCount > 1
                     ? static_cast<float>(i) / static_cast<float>(orbitRingVertexCount - 1)
                     : 0.0f;
-                float angleDeg = satellite.orbitAngle - t * trailSpan;
-                float angleRad = qDegreesToRadians(angleDeg);
-                float x = satellite.orbitRadius * qCos(angleRad);
-                float z = satellite.orbitRadius * qSin(angleRad);
+                float angleDeg = satelliteVisual.orbitAngle - t * trailSpan;
+                QVector3D trailPoint = satelliteVisual.GetOrbitPositionForAngle(angleDeg);
 
-                orbitTrailVertices.push_back(x);
-                orbitTrailVertices.push_back(0.0f);
-                orbitTrailVertices.push_back(z);
+                orbitTrailVertices.push_back(trailPoint.x());
+                orbitTrailVertices.push_back(trailPoint.y());
+                orbitTrailVertices.push_back(trailPoint.z());
             }
 
             orbitRingVbo.bind();
@@ -513,7 +586,7 @@ void Orbitview::paintGL()
         }
 
         // Satellite draw pass
-        // Reuse the same shader with a different model transform for the orbiting satellite.
+            // Reuse the same shader with a different model transform for the orbiting satellite.
         program->setUniformValue("uMVP", satelliteMvp);
         program->setUniformValue("uModel", satelliteModel);
         program->setUniformValue("uNormalMatrix", satelliteNormalMatrix);
@@ -522,10 +595,7 @@ void Orbitview::paintGL()
 
         if (satelliteGlowProgram != nullptr && satelliteGlowVao.isCreated())
         {
-            QVector3D glowPos(
-                satelliteModel(0, 3),
-                satelliteModel(1, 3),
-                satelliteModel(2, 3));
+            QVector3D glowPos = satelliteVisual.GetOrbitPosition();
             float glowVertex[3] = {glowPos.x(), glowPos.y(), glowPos.z()};
 
             satelliteGlowVbo.bind();
@@ -540,7 +610,7 @@ void Orbitview::paintGL()
             satelliteGlowProgram->bind();
             satelliteGlowProgram->setUniformValue("uMVP", projection * view);
             satelliteGlowProgram->setUniformValue("uColor", glowColor);
-            satelliteGlowProgram->setUniformValue("uPointSize", 20.0f);
+            satelliteGlowProgram->setUniformValue("uPointSize", isSelected ? 24.0f : 18.0f);
             satelliteGlowVao.bind();
             glDrawArrays(GL_POINTS, 0, 1);
             satelliteGlowVao.release();
