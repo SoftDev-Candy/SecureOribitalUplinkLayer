@@ -14,7 +14,9 @@ class TelemetryHub
 private:
 
 public:
+    // Opens the client socket and kicks off the endless telemetry send loop.
     static int runClient();
+    // Sends one frame for each simulated satellite, then waits for the normal ACK after every send.
     static void SendTelemetry (boost::asio::ip::tcp::socket& socket);
 
 

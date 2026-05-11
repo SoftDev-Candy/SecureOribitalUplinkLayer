@@ -16,10 +16,13 @@ using boost::asio::ip::tcp;
 
 void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 {
-    //FrameCodec Object
+    // This little codec dude keeps the framed TCP protocol exactly the same as before.
     FrameCodec Frame;
 
     // Three satellites, same radio pipe, slightly different personalities.
+    // SAT_1 is the chill one.
+    // SAT_2 burns battery faster.
+    // SAT_3 warms up slowly over time.
     std::array<SimulationState, 3> satellites = {
         SimulationState("SAT_1", 100.0f, 44.6f, 0.10f, 0.00f),
         SimulationState("SAT_2", 100.0f, 42.5f, 1.35f, 0.00f),
@@ -28,9 +31,10 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 
     while (true)
     {
+        // One loop now means "every satellite gets a turn" instead of just SAT_1 hogging the spotlight.
         for (SimulationState& satellite : satellites)
         {
-            //TelemetryFrame Object
+            // Ask the simulation for the next fake-but-useful telemetry frame.
             TelemetryFrame tf = satellite.MakeNextFrame();
 
             /*
@@ -42,10 +46,10 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
             uint64_t timestamp_val = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
             */
 
-            //Convert To Json
+            // Turn the frame into JSON first because that is what the framing layer already expects.
             std::string TelemetryJSON = tf.ToJson();
 
-            //Encoding the Telemetry and writing it down in the socket//
+            // Wrap the payload in the framed protocol and ship it out.
             auto encoded = Frame.EncodeFrame(TelemetryJSON);
             boost::asio::write(socket, boost::asio::buffer(encoded));
 
@@ -61,6 +65,7 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
             }
         }
 
+        // Tiny pause so the sender does not become an absolute menace.
         //Simple Threading Underneath ...I should get into knitting ..//
         //I really don't think this is a good practice do want to see how pro's do this tho ...lets do steady clock
         //and sleep until to slow the entire thread down so we dont get spammed constantly//
@@ -85,6 +90,7 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
 {
     try
     {
+        // The client side is still intentionally boring: make socket, connect once, start sending forever.
         boost::asio::io_context io_context;
         unsigned short int PORT = 5000;
 

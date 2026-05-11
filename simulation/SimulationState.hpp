@@ -10,11 +10,17 @@
 class SimulationState
 {
 private:
-    //Copied var from TelemetryFrame class
+    // These mirror the telemetry frame fields we care about keeping alive between sends.
+    // sat_id tells us who we are pretending to be.
+    // sequence keeps climbing so the backend sees a normal stream.
+    // battery and temp_c are the actual changing health values.
     std::string sat_id{};
     uint64_t sequence{};
     float battery{};
     float temp_c{};
+    // These two are the behavior sliders for the simple simulation.
+    // drain_per_frame says how much battery disappears every tick.
+    // drift_per_frame says how much the temperature moves every tick.
     float battery_drain_per_frame{};
     float temperature_drift_per_frame{};
 
