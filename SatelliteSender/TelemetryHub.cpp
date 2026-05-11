@@ -4,6 +4,7 @@
 
 #include "TelemetryHub.hpp"
 
+#include <array>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -18,38 +19,46 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
     //FrameCodec Object
     FrameCodec Frame;
 
-    SimulationState Simstate("SAT_1" , 100.0f , 44.6f);
+    // Three satellites, same radio pipe, slightly different personalities.
+    std::array<SimulationState, 3> satellites = {
+        SimulationState("SAT_1", 100.0f, 44.6f, 0.10f, 0.00f),
+        SimulationState("SAT_2", 100.0f, 42.5f, 1.35f, 0.00f),
+        SimulationState("SAT_3", 100.0f, 39.0f, 0.18f, 0.06f)
+    };
 
     while (true)
     {
-        //TelemetryFrame Object
-        TelemetryFrame tf;
-        tf = Simstate.MakeNextFrame();
-
-        /*
-        //Lets get the current point in time from clock//
-        //Lets get the duration Epoch from its start
-        auto duration  = std::chrono::system_clock::now().time_since_epoch();
-
-        //Conversion to store it in time stamp
-        uint64_t timestamp_val = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
-        */
-
-        //Convert To Json
-        std::string TelemetryJSON = tf.ToJson();
-
-        //Encoding the Telemetry and writing it down in the socket//
-        auto encoded = Frame.EncodeFrame(TelemetryJSON);
-        boost::asio::write(socket, boost::asio::buffer(encoded));
-
-        //Decode the incoming string from the server to get ack packet.//
-        auto decoded = Frame.DecodeFrame(socket);
-        if (decoded== "")
+        for (SimulationState& satellite : satellites)
         {
-            std::cerr<<"Decoded Ack from the server is invalid";
-        }else
-        {
-            std::cout<<"Ack Type "<<decoded<<std::endl;
+            //TelemetryFrame Object
+            TelemetryFrame tf = satellite.MakeNextFrame();
+
+            /*
+            //Lets get the current point in time from clock//
+            //Lets get the duration Epoch from its start
+            auto duration  = std::chrono::system_clock::now().time_since_epoch();
+
+            //Conversion to store it in time stamp
+            uint64_t timestamp_val = std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count();
+            */
+
+            //Convert To Json
+            std::string TelemetryJSON = tf.ToJson();
+
+            //Encoding the Telemetry and writing it down in the socket//
+            auto encoded = Frame.EncodeFrame(TelemetryJSON);
+            boost::asio::write(socket, boost::asio::buffer(encoded));
+
+            // Same old handshake, just repeated three times so nobody gets ghosted.
+            auto decoded = Frame.DecodeFrame(socket);
+            if (decoded == "")
+            {
+                std::cerr<<"Decoded Ack from the server is invalid";
+            }
+            else
+            {
+                std::cout<<"Ack Type "<<decoded<<std::endl;
+            }
         }
 
         //Simple Threading Underneath ...I should get into knitting ..//

@@ -183,6 +183,7 @@ if(SOUL_BUILD_UI)
 
         target_include_directories(UserInterface
                 PRIVATE
+                ${CMAKE_SOURCE_DIR}/ui
                 ${CMAKE_SOURCE_DIR}/OrbitalRendering
                 external/glm
         )

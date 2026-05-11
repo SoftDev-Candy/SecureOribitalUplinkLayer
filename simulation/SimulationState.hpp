@@ -15,11 +15,15 @@ private:
     uint64_t sequence{};
     float battery{};
     float temp_c{};
+    float battery_drain_per_frame{};
+    float temperature_drift_per_frame{};
 
 public:
-    SimulationState(const std::string& id,float bat,float temp);
+    // Builds one small satellite state machine with its own starting health values and drift behavior.
+    SimulationState(const std::string& id, float bat, float temp, float batteryDrainPerFrame = 1.0f, float temperatureDriftPerFrame = -0.02f);
 
- TelemetryFrame MakeNextFrame();
+    // Generates the next telemetry frame after applying the simple battery/temperature behavior for this satellite.
+    TelemetryFrame MakeNextFrame();
 
 };
 

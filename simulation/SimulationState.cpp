@@ -3,23 +3,27 @@
 //
 
 #include <chrono>
+#include <algorithm>
 #include "SimulationState.hpp"
 
 //Constructor for Simulation State Class
-SimulationState::SimulationState(const std::string &id, float bat, float temp)
+SimulationState::SimulationState(const std::string &id, float bat, float temp, float batteryDrainPerFrame, float temperatureDriftPerFrame)
 {
     sat_id = id;
     battery = bat;
     temp_c = temp;
     sequence = 0;
+    battery_drain_per_frame = batteryDrainPerFrame;
+    temperature_drift_per_frame = temperatureDriftPerFrame;
 }
 
 //Controls how to simulation works --Simple but effective for my use cases
 TelemetryFrame SimulationState::MakeNextFrame()
 {
     sequence++;
-    battery -= 1.0f;
-    temp_c -= 0.02f;
+    // Tiny drama engine: each satellite burns battery and shifts temperature at its own pace.
+    battery = std::max(0.0f, battery - battery_drain_per_frame);
+    temp_c += temperature_drift_per_frame;
 
     //FIXME - Technically need to have something like a public function I called this particular logic 3 times now lol
     auto duration  = std::chrono::system_clock::now().time_since_epoch();

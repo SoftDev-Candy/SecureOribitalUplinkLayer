@@ -64,6 +64,10 @@ public:
     void resizeGL(int w ,int h)override;
     // Draws the Earth and satellite with the current camera and shader uniforms.
     void paintGL()override;
+    // Stores which satellite the operator selected so the scene can decide whether to draw it.
+    void SetSelectedSatellite(const QString& satelliteName);
+    // Stores the current link status for the selected satellite.
+    void SetSatelliteLinkStatus(const QString& linkStatus);
 
     //Adding rotation//
     float earthRotation = 0.0f;
@@ -81,6 +85,8 @@ public:
     Camera _camera;
 
     SatelliteVisual satellite;
+    QString selectedSatelliteName;
+    QString satelliteLinkStatus = "Disconnected";
 
     QPoint lastMousePos;
 

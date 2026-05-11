@@ -138,6 +138,16 @@ Orbitview::Orbitview(QWidget *parent) : QOpenGLWidget(parent)
     setMouseTracking(true);
 }
 
+void Orbitview::SetSelectedSatellite(const QString& satelliteName)
+{
+    selectedSatelliteName = satelliteName;
+}
+
+void Orbitview::SetSatelliteLinkStatus(const QString& linkStatus)
+{
+    satelliteLinkStatus = linkStatus;
+}
+
 Orbitview::~Orbitview()
 {
     if (context() != nullptr)
@@ -438,89 +448,108 @@ void Orbitview::paintGL()
 
     earthMesh.Draw(program, 0, "uDayMap");
 
-    satellite.Update(1.0f / 60.0f);
-    QMatrix4x4 satelliteModel = satellite.GetModelMatrix();
-    QMatrix4x4 satelliteMvp = projection * view * satelliteModel;
-    QMatrix3x3 satelliteNormalMatrix = satelliteModel.normalMatrix();
-
-    // Orbit trail draw pass
-    if (orbitRingProgram != nullptr && orbitRingVao.isCreated() && orbitRingVertexCount > 0)
+    if (!selectedSatelliteName.isEmpty())
     {
-        std::vector<float> orbitTrailVertices;
-        orbitTrailVertices.reserve(orbitRingVertexCount * 3);
+        satellite.Update(1.0f / 60.0f);
+        QMatrix4x4 satelliteModel = satellite.GetModelMatrix();
+        QMatrix4x4 satelliteMvp = projection * view * satelliteModel;
+        QMatrix3x3 satelliteNormalMatrix = satelliteModel.normalMatrix();
 
-        float trailSpan = 180.0f;
+        QVector3D trailColor(0.62f, 0.69f, 0.78f);
+        QVector3D glowColor(0.82f, 0.92f, 1.0f);
 
-        // Open trail only, no full donut nonsense. It starts behind the satellite and keeps chasing it.
-        for (int i = 0; i < orbitRingVertexCount; ++i)
+        if (satelliteLinkStatus == "Degraded")
         {
-            float t = orbitRingVertexCount > 1
-                ? static_cast<float>(i) / static_cast<float>(orbitRingVertexCount - 1)
-                : 0.0f;
-            float angleDeg = satellite.orbitAngle - t * trailSpan;
-            float angleRad = qDegreesToRadians(angleDeg);
-            float x = satellite.orbitRadius * qCos(angleRad);
-            float z = satellite.orbitRadius * qSin(angleRad);
-
-            orbitTrailVertices.push_back(x);
-            orbitTrailVertices.push_back(0.0f);
-            orbitTrailVertices.push_back(z);
+            trailColor = QVector3D(0.88f, 0.72f, 0.32f);
+            glowColor = QVector3D(1.0f, 0.82f, 0.38f);
         }
 
-        orbitRingVbo.bind();
-        orbitRingVbo.allocate(
-            orbitTrailVertices.data(),
-            static_cast<int>(orbitTrailVertices.size() * sizeof(float)));
-        orbitRingVbo.release();
+        if (satelliteLinkStatus == "Disconnected")
+        {
+            trailColor = QVector3D(0.45f, 0.48f, 0.52f);
+            glowColor = QVector3D(0.58f, 0.62f, 0.68f);
+        }
 
-        orbitRingProgram->bind();
-        orbitRingProgram->setUniformValue("uMVP", projection * view);
-        orbitRingProgram->setUniformValue("uColor", QVector3D(0.62f, 0.69f, 0.78f));
+        // Orbit trail draw pass
+        if (orbitRingProgram != nullptr && orbitRingVao.isCreated() && orbitRingVertexCount > 0)
+        {
+            std::vector<float> orbitTrailVertices;
+            orbitTrailVertices.reserve(orbitRingVertexCount * 3);
 
-        glLineWidth(2.0f);
-        orbitRingVao.bind();
-        glDrawArrays(GL_LINE_STRIP, 0, orbitRingVertexCount);
-        orbitRingVao.release();
-        orbitRingProgram->release();
-        program->bind();
-    }
+            float trailSpan = 180.0f;
 
-    // Satellite draw pass
-    // Reuse the same shader with a different model transform for the orbiting satellite.
-    program->setUniformValue("uMVP", satelliteMvp);
-    program->setUniformValue("uModel", satelliteModel);
-    program->setUniformValue("uNormalMatrix", satelliteNormalMatrix);
-    program->setUniformValue("uNightMap", 0);
-    satelliteMesh.Draw(program, 0, "uDayMap");
+            // Open trail only, no full donut nonsense. It starts behind the satellite and keeps chasing it.
+            for (int i = 0; i < orbitRingVertexCount; ++i)
+            {
+                float t = orbitRingVertexCount > 1
+                    ? static_cast<float>(i) / static_cast<float>(orbitRingVertexCount - 1)
+                    : 0.0f;
+                float angleDeg = satellite.orbitAngle - t * trailSpan;
+                float angleRad = qDegreesToRadians(angleDeg);
+                float x = satellite.orbitRadius * qCos(angleRad);
+                float z = satellite.orbitRadius * qSin(angleRad);
 
-    if (satelliteGlowProgram != nullptr && satelliteGlowVao.isCreated())
-    {
-        QVector3D glowPos(
-            satelliteModel(0, 3),
-            satelliteModel(1, 3),
-            satelliteModel(2, 3));
-        float glowVertex[3] = {glowPos.x(), glowPos.y(), glowPos.z()};
+                orbitTrailVertices.push_back(x);
+                orbitTrailVertices.push_back(0.0f);
+                orbitTrailVertices.push_back(z);
+            }
 
-        satelliteGlowVbo.bind();
-        satelliteGlowVbo.allocate(glowVertex, static_cast<int>(sizeof(glowVertex)));
-        satelliteGlowVbo.release();
+            orbitRingVbo.bind();
+            orbitRingVbo.allocate(
+                orbitTrailVertices.data(),
+                static_cast<int>(orbitTrailVertices.size() * sizeof(float)));
+            orbitRingVbo.release();
 
-        // Tiny glow goblin so the satellite stops playing hide and seek in the void.
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        glDepthMask(GL_FALSE);
+            orbitRingProgram->bind();
+            orbitRingProgram->setUniformValue("uMVP", projection * view);
+            orbitRingProgram->setUniformValue("uColor", trailColor);
 
-        satelliteGlowProgram->bind();
-        satelliteGlowProgram->setUniformValue("uMVP", projection * view);
-        satelliteGlowProgram->setUniformValue("uColor", QVector3D(0.82f, 0.92f, 1.0f));
-        satelliteGlowProgram->setUniformValue("uPointSize", 20.0f);
-        satelliteGlowVao.bind();
-        glDrawArrays(GL_POINTS, 0, 1);
-        satelliteGlowVao.release();
-        satelliteGlowProgram->release();
+            glLineWidth(2.0f);
+            orbitRingVao.bind();
+            glDrawArrays(GL_LINE_STRIP, 0, orbitRingVertexCount);
+            orbitRingVao.release();
+            orbitRingProgram->release();
+            program->bind();
+        }
 
-        glDepthMask(GL_TRUE);
-        glDisable(GL_BLEND);
+        // Satellite draw pass
+        // Reuse the same shader with a different model transform for the orbiting satellite.
+        program->setUniformValue("uMVP", satelliteMvp);
+        program->setUniformValue("uModel", satelliteModel);
+        program->setUniformValue("uNormalMatrix", satelliteNormalMatrix);
+        program->setUniformValue("uNightMap", 0);
+        satelliteMesh.Draw(program, 0, "uDayMap");
+
+        if (satelliteGlowProgram != nullptr && satelliteGlowVao.isCreated())
+        {
+            QVector3D glowPos(
+                satelliteModel(0, 3),
+                satelliteModel(1, 3),
+                satelliteModel(2, 3));
+            float glowVertex[3] = {glowPos.x(), glowPos.y(), glowPos.z()};
+
+            satelliteGlowVbo.bind();
+            satelliteGlowVbo.allocate(glowVertex, static_cast<int>(sizeof(glowVertex)));
+            satelliteGlowVbo.release();
+
+            // Tiny glow goblin so the satellite stops playing hide and seek in the void.
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            glDepthMask(GL_FALSE);
+
+            satelliteGlowProgram->bind();
+            satelliteGlowProgram->setUniformValue("uMVP", projection * view);
+            satelliteGlowProgram->setUniformValue("uColor", glowColor);
+            satelliteGlowProgram->setUniformValue("uPointSize", 20.0f);
+            satelliteGlowVao.bind();
+            glDrawArrays(GL_POINTS, 0, 1);
+            satelliteGlowVao.release();
+            satelliteGlowProgram->release();
+
+            glDepthMask(GL_TRUE);
+            glDisable(GL_BLEND);
+            program->bind();
+        }
     }
 
     program->release();
