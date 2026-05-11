@@ -12,6 +12,7 @@
 
 bool TexturedMesh::Initialize(const std::string& objPath, const QString& texturePath, QOpenGLShaderProgram* program)
 {
+    // Start clean in case this mesh is being reloaded.
     Destroy();
 
     if (program == nullptr)
@@ -20,6 +21,7 @@ bool TexturedMesh::Initialize(const std::string& objPath, const QString& texture
         return false;
     }
 
+    // Load the CPU-side mesh data first so we know the buffers have something valid to upload.
     if (!LoadObjToMeshData(objPath, mesh))
     {
         qDebug() << "Failed to load mesh:" << QString::fromStdString(objPath);
@@ -34,6 +36,7 @@ bool TexturedMesh::Initialize(const std::string& objPath, const QString& texture
         return false;
     }
 
+    // The mesh owns one texture, so create it here while we are still in the setup step.
     QImage image(texturePath);
     if (image.isNull())
     {
@@ -56,6 +59,7 @@ bool TexturedMesh::Initialize(const std::string& objPath, const QString& texture
         return false;
     }
 
+    // Bind the VAO before wiring buffers and attribute layout so this mesh keeps its own state.
     vao.bind();
 
     if (!vbo.create() || !vbo.bind())
@@ -79,6 +83,7 @@ bool TexturedMesh::Initialize(const std::string& objPath, const QString& texture
     ebo.allocate(mesh.indices.data(), static_cast<int>(mesh.indices.size() * sizeof(unsigned int)));
     indexCount = static_cast<int>(mesh.indices.size());
 
+    // Match the current shader layout: position xyz, uv, normal xyz = 8 floats per vertex.
     program->bind();
     program->enableAttributeArray(0);
     program->setAttributeBuffer(0, GL_FLOAT, 0, 3, 8 * sizeof(float));
@@ -110,6 +115,7 @@ void TexturedMesh::Draw(QOpenGLShaderProgram* program, int textureUnit, const ch
         return;
     }
 
+    // This draw helper assumes the caller already set matrices and any other shared uniforms.
     texture->bind(textureUnit);
     program->setUniformValue(uniformName, textureUnit);
 
@@ -120,6 +126,7 @@ void TexturedMesh::Draw(QOpenGLShaderProgram* program, int textureUnit, const ch
 
 void TexturedMesh::Destroy()
 {
+    // Tear down GPU resources first, then clear the CPU-side mesh data we cached during load.
     if (texture != nullptr)
     {
         delete texture;

@@ -13,7 +13,7 @@ public:
     float orbitRadius = 2.1f;
     float orbitAngle = 0.0f;
     float orbitSpeed = 20.0f;
-    float scale = 0.00001f;
+    float scale = 0.00002f;
 
     // Moves the satellite forward around its orbit using the frame time step.
     void Update(float dt);

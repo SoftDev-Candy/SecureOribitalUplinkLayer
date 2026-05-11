@@ -7,8 +7,10 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QOpenGLVertexArrayObject>
 #include <QPoint>
 #include <QWheelEvent>
 #include <QMouseEvent>
@@ -33,6 +35,13 @@ class Orbitview : public QOpenGLWidget , protected QOpenGLFunctions
 
 private:
     QOpenGLShaderProgram *program = nullptr;
+    QOpenGLShaderProgram *orbitRingProgram = nullptr;
+    QOpenGLShaderProgram *satelliteGlowProgram = nullptr;
+    QOpenGLVertexArrayObject orbitRingVao;
+    QOpenGLBuffer orbitRingVbo{QOpenGLBuffer::VertexBuffer};
+    int orbitRingVertexCount = 0;
+    QOpenGLVertexArrayObject satelliteGlowVao;
+    QOpenGLBuffer satelliteGlowVbo{QOpenGLBuffer::VertexBuffer};
 
 protected:
     // Zooms the camera in or out using the mouse wheel.
