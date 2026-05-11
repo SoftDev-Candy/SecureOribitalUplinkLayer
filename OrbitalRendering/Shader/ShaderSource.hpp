@@ -56,7 +56,8 @@ const char* FragmentShader()
         void main()
         {
             vec3 N = normalize(vNormal);
-            vec3 L = normalize(-uSunDir);
+            // The light/night split looked backwards in this scene, so use the sun direction directly here.
+            vec3 L = normalize(uSunDir);
 
             float lightAmount = dot(N, L);
             float dayAmount = smoothstep(-0.01, 0.01, lightAmount);
@@ -66,7 +67,7 @@ const char* FragmentShader()
 
             float diffuse = clamp(lightAmount, 0.0, 1.0);
             vec3 litDay = dayColor * (0.20 + 0.80 * diffuse);
-            vec3 litNight = clamp(nightColor * 4.0, 0.0, 1.0);
+            vec3 litNight = clamp(nightColor * 4.6, 0.0, 1.0);
             vec3 earthColor = mix(litNight, litDay, dayAmount);
 
             FragColor = vec4(earthColor, 1.0);

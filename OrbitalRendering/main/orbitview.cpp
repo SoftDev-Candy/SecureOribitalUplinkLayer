@@ -606,16 +606,18 @@ void Orbitview::paintGL()
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             glDepthMask(GL_FALSE);
+            glDisable(GL_DEPTH_TEST);
 
             satelliteGlowProgram->bind();
             satelliteGlowProgram->setUniformValue("uMVP", projection * view);
             satelliteGlowProgram->setUniformValue("uColor", glowColor);
-            satelliteGlowProgram->setUniformValue("uPointSize", isSelected ? 24.0f : 18.0f);
+            satelliteGlowProgram->setUniformValue("uPointSize", isSelected ? 26.0f : 20.0f);
             satelliteGlowVao.bind();
             glDrawArrays(GL_POINTS, 0, 1);
             satelliteGlowVao.release();
             satelliteGlowProgram->release();
 
+            glEnable(GL_DEPTH_TEST);
             glDepthMask(GL_TRUE);
             glDisable(GL_BLEND);
             program->bind();
