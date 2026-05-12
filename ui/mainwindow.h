@@ -40,8 +40,8 @@ private:
     void ConfigureSatelliteTable();
     // Sets up the telemetry table so it shows recent packets for the chosen satellite.
     void ConfigureTelemetryTable();
-    // Adds a little styling so the operator widgets do not look like they woke up five minutes ago.
-    void ApplyUiPolish();
+    // Styles the widgets a bit and nudges the left/right info panels into the middle of their boxes.
+    void StyleTheUi();
     // Copies the latest row for each satellite into the visible list.
     void PopulateSatelliteTable();
     // Copies recent telemetry rows for the selected satellite into the lower table.

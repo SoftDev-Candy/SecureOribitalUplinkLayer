@@ -22,11 +22,11 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
     // Three satellites, same radio pipe, slightly different personalities.
     // SAT_1 is the chill one.
     // SAT_2 burns battery faster.
-    // SAT_3 warms up slowly over time.
+    // SAT_3 warms up slowly and sometimes goes radio-silent for a bit.
     std::array<SimulationState, 3> satellites = {
-        SimulationState("SAT_1", 100.0f, 44.6f, 0.10f, 0.00f),
-        SimulationState("SAT_2", 100.0f, 42.5f, 1.35f, 0.00f),
-        SimulationState("SAT_3", 100.0f, 39.0f, 0.18f, 0.06f)
+        SimulationState("SAT_1", 100.0f, 44.6f, SatelliteMode::Nominal, 0.10f, 0.00f),
+        SimulationState("SAT_2", 100.0f, 42.5f, SatelliteMode::PowerDrain, 0.55f, 0.00f),
+        SimulationState("SAT_3", 100.0f, 39.0f, SatelliteMode::SignalLoss, 0.18f, 0.06f)
     };
 
     while (true)
@@ -35,7 +35,15 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
         for (SimulationState& satellite : satellites)
         {
             // Ask the simulation for the next fake-but-useful telemetry frame.
-            TelemetryFrame tf = satellite.MakeNextFrame();
+            std::optional<TelemetryFrame> nextFrame = satellite.MakeNextFrame();
+
+            // No frame here means "pretend the signal dropped", not "the whole client died".
+            if (!nextFrame.has_value())
+            {
+                continue;
+            }
+
+            TelemetryFrame tf = *nextFrame;
 
             /*
             //Lets get the current point in time from clock//
@@ -53,7 +61,7 @@ void TelemetryHub::SendTelemetry(boost::asio::ip::tcp::socket &socket)
             auto encoded = Frame.EncodeFrame(TelemetryJSON);
             boost::asio::write(socket, boost::asio::buffer(encoded));
 
-            // Same old handshake, just repeated three times so nobody gets ghosted.
+            // Same old handshake, just repeated for whichever frames actually got sent this round.
             auto decoded = Frame.DecodeFrame(socket);
             if (decoded == "")
             {

@@ -17,13 +17,15 @@
 
 namespace
 {
-qint64 CurrentTimeMs()
+// Just gets the current time in milliseconds so the status math can stay simple.
+qint64 NowMs()
 {
     auto now = std::chrono::system_clock::now().time_since_epoch();
     return std::chrono::duration_cast<std::chrono::milliseconds>(now).count();
 }
 
-QString LinkStatusForAge(qint64 ageMs)
+// Turns "how stale is this packet" into a small operator-friendly status word.
+QString GetLinkStatus(qint64 ageMs)
 {
     if (ageMs < 3000)
     {
@@ -38,7 +40,8 @@ QString LinkStatusForAge(qint64 ageMs)
     return "Disconnected";
 }
 
-QString BatteryStatusFor(double battery)
+// Tiny battery grading helper so the UI can say more than just a number.
+QString GetBatteryStatus(double battery)
 {
     if (battery < 30.0)
     {
@@ -53,7 +56,8 @@ QString BatteryStatusFor(double battery)
     return "Good";
 }
 
-QString TemperatureStatusFor(double temperature)
+// Same idea but for temperature, because "44.2" by itself does not tell much of a story.
+QString GetTempStatus(double temperature)
 {
     if (temperature < 0.0)
     {
@@ -78,7 +82,8 @@ QString TemperatureStatusFor(double temperature)
     return "Critical High";
 }
 
-QString HealthStatusFor(const QString& linkStatus, const QString& batteryStatus, const QString& temperatureStatus)
+// This is the lazy summary line that squashes a few health checks into one word.
+QString GetHealthStatus(const QString& linkStatus, const QString& batteryStatus, const QString& temperatureStatus)
 {
     if (linkStatus == "Disconnected")
     {
@@ -98,12 +103,14 @@ QString HealthStatusFor(const QString& linkStatus, const QString& batteryStatus,
     return "Nominal";
 }
 
-QString FormatDisplayDateTime(qint64 epochMs)
+// Makes the raw millisecond timestamp look like something a human can read.
+QString FormatTimeText(qint64 epochMs)
 {
     return QDateTime::fromMSecsSinceEpoch(epochMs).toString("yyyy-MM-dd hh:mm:ss");
 }
 
-QString EstimatePacketSize(const QString& satName, qint64 sequence, qint64 timestampMs, double battery, double temperature)
+// We do not store packet size in the DB yet, so this is our best educated guess for now.
+QString GuessPacketSize(const QString& satName, qint64 sequence, qint64 timestampMs, double battery, double temperature)
 {
     // No packet-size column lives in SQLite yet, so we estimate the payload size from the frame shape we already use.
     const QString payload = QString("{\"sat_id\":\"%1\",\"sequence\":%2,\"timestamp_ms\":%3,\"battery\":%4,\"temp_c\":%5}")
@@ -116,7 +123,8 @@ QString EstimatePacketSize(const QString& satName, qint64 sequence, qint64 times
     return QString::number(payload.toUtf8().size()) + " B";
 }
 
-void ResetDetailLabels(Ui::mainwindow* ui)
+// Clears the detail labels when nothing useful is selected or connected.
+void ClearDetailLabels(Ui::mainwindow* ui)
 {
     ui->SatelliteName_Label->setText("N/A");
     ui->LinkStatus_Connection->setText("Disconnected");
@@ -138,7 +146,7 @@ mainwindow::mainwindow(QWidget *parent)
 
     ConfigureTelemetryTable();
     ConfigureSatelliteTable();
-    ApplyUiPolish();
+    StyleTheUi();
 
     noSatelliteLabel = new QLabel("No active satellite connection", this);
     noSatelliteLabel->setGeometry(16, 20, 260, 24);
@@ -204,7 +212,7 @@ void mainwindow::ConfigureTelemetryTable()
     ui->DatabaseTable->setCursor(Qt::ArrowCursor);
 }
 
-void mainwindow::ApplyUiPolish()
+void mainwindow::StyleTheUi()
 {
     // Just enough styling so the panels feel a bit more mission-control and a bit less default-widget-core.
     const QString tableStyle =
@@ -245,6 +253,25 @@ void mainwindow::ApplyUiPolish()
 
     ui->layoutWidget->setStyleSheet(panelStyle);
     ui->layoutWidget_2->setStyleSheet(panelStyle);
+
+    // These help keep the left and right info stacks visually centered inside their own little cards.
+    ui->SatelliteData_Left->setContentsMargins(12, 12, 12, 12);
+    ui->SatelliteData_Right->setContentsMargins(12, 12, 12, 12);
+    ui->SatelliteData_Left->setSpacing(8);
+    ui->SatelliteData_Right->setSpacing(12);
+    ui->SatelliteData_Left->setAlignment(Qt::AlignCenter);
+    ui->SatelliteData_Right->setAlignment(Qt::AlignCenter);
+
+    // Center each row too so the text does not lean awkwardly to one side.
+    ui->SatelliteName_Layout->setAlignment(Qt::AlignHCenter);
+    ui->LinkStatus_Layout->setAlignment(Qt::AlignHCenter);
+    ui->PacketLoss_Layout->setAlignment(Qt::AlignHCenter);
+    ui->Latency_Layout->setAlignment(Qt::AlignHCenter);
+    ui->Battery_Layout->setAlignment(Qt::AlignHCenter);
+    ui->Temprature_Layout->setAlignment(Qt::AlignHCenter);
+    ui->Battery_StatusLayout->setAlignment(Qt::AlignHCenter);
+    ui->Health_StatusLayout->setAlignment(Qt::AlignHCenter);
+    ui->Temp_StatusLayout->setAlignment(Qt::AlignHCenter);
 }
 
 void mainwindow::PopulateSatelliteTable()
@@ -316,10 +343,10 @@ void mainwindow::PopulateTelemetryTable()
             double battery = sqlite3_column_double(stmt, 3);
             double temperature = sqlite3_column_double(stmt, 4);
             qint64 latencyMs = receivedMs - timestampMs;
-            qint64 ageMs = CurrentTimeMs() - receivedMs;
-            QString linkStatus = LinkStatusForAge(ageMs);
-            QString packetSize = EstimatePacketSize(selectedSatelliteName, sequence, timestampMs, battery, temperature);
-            QString displayTime = FormatDisplayDateTime(receivedMs);
+            qint64 ageMs = NowMs() - receivedMs;
+            QString linkStatus = GetLinkStatus(ageMs);
+            QString packetSize = GuessPacketSize(selectedSatelliteName, sequence, timestampMs, battery, temperature);
+            QString displayTime = FormatTimeText(receivedMs);
 
             ui->DatabaseTable->setItem(row, 0, new QTableWidgetItem(QString::number(sequence)));
             ui->DatabaseTable->setItem(row, 1, new QTableWidgetItem(QString::number(timestampMs)));
@@ -358,9 +385,9 @@ void mainwindow::ApplySelectedSatellite()
             continue;
         }
 
-        QString batteryStatus = BatteryStatusFor(sat.battery);
-        QString temperatureStatus = TemperatureStatusFor(sat.temperature);
-        QString healthStatus = HealthStatusFor(sat.linkStatus, batteryStatus, temperatureStatus);
+        QString batteryStatus = GetBatteryStatus(sat.battery);
+        QString temperatureStatus = GetTempStatus(sat.temperature);
+        QString healthStatus = GetHealthStatus(sat.linkStatus, batteryStatus, temperatureStatus);
         qint64 latency = sat.receivedMs - sat.timestampMs;
 
         ui->SatelliteName_Label->setText(sat.name);
@@ -401,7 +428,7 @@ void mainwindow::ShowNoTelemetryState()
     ui->layoutWidget->setVisible(false);
     ui->layoutWidget_2->setVisible(false);
 
-    ResetDetailLabels(ui);
+    ClearDetailLabels(ui);
 
     if (noSatelliteLabel != nullptr)
     {
@@ -429,7 +456,7 @@ void mainwindow::ShowNoSelectionState()
     ui->layoutWidget->setVisible(false);
     ui->layoutWidget_2->setVisible(false);
 
-    ResetDetailLabels(ui);
+    ClearDetailLabels(ui);
 
     if (noSatelliteLabel != nullptr)
     {
@@ -513,7 +540,7 @@ void mainwindow::RefreshTelemetryView()
 
     if (sqlite3_prepare_v2(DB, sql, -1, &stmt, nullptr) == SQLITE_OK)
     {
-        qint64 currentTime = CurrentTimeMs();
+        qint64 currentTime = NowMs();
 
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
@@ -530,7 +557,7 @@ void mainwindow::RefreshTelemetryView()
             sat.temperature = sqlite3_column_double(stmt, 3);
             sat.receivedMs = sqlite3_column_int64(stmt, 4);
             sat.timestampMs = sqlite3_column_int64(stmt, 5);
-            sat.linkStatus = LinkStatusForAge(currentTime - sat.receivedMs);
+            sat.linkStatus = GetLinkStatus(currentTime - sat.receivedMs);
 
             satellites.push_back(sat);
         }

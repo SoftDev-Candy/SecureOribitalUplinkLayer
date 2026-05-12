@@ -5,6 +5,8 @@
 #ifndef SOUL_SHADERSOURCE_HPP
 #define SOUL_SHADERSOURCE_HPP
 
+// Vertex shader for both Earth and the reused satellite mesh.
+// It passes UVs, world position, and normals down to the fragment shader.
 const char* VertexShader()
 {
     return R"(
@@ -36,6 +38,9 @@ const char* VertexShader()
     )";
 }
 
+// Fragment shader for the textured planet/satellite pass.
+// For Earth we use both day and night maps.
+// For satellites we just bind the same texture slot to both uniforms and move on with life.
 const char* FragmentShader()
 {
     return R"(

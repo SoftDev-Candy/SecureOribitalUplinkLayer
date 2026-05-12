@@ -33,7 +33,7 @@ class Orbitview : public QOpenGLWidget , protected QOpenGLFunctions
 {
     Q_OBJECT
 
-    struct SatelliteRenderState
+    struct SatRenderData
     {
         // Name is what we line up with the UI table and the SQLite rows.
         QString name;
@@ -98,7 +98,7 @@ public:
     Camera _camera;
 
     // These are the three little orbit gremlins that match SAT_1, SAT_2, and SAT_3 in the backend.
-    std::array<SatelliteRenderState, 3> satellites;
+    std::array<SatRenderData, 3> satellites;
     QString selectedSatelliteName;
     QString satelliteLinkStatus = "Disconnected";
 

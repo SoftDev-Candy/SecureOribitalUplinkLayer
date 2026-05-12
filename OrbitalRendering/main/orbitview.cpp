@@ -15,6 +15,7 @@
 
 namespace
 {
+// Tiny shader for the orbit trail lines. No textures, no drama, just positions.
 const char* OrbitRingVertexShader()
 {
     return R"(
@@ -34,6 +35,7 @@ const char* OrbitRingVertexShader()
     )";
 }
 
+// Fragment shader that chops the line into dotted pieces instead of one full bright noodle.
 const char* OrbitRingFragmentShader()
 {
     return R"(
@@ -60,6 +62,7 @@ const char* OrbitRingFragmentShader()
     )";
 }
 
+// Super small point shader we use for the glow dot that helps track satellites.
 const char* SatelliteGlowVertexShader()
 {
     return R"(
@@ -78,6 +81,7 @@ const char* SatelliteGlowVertexShader()
     )";
 }
 
+// Makes the point look soft and round instead of a crunchy square pixel blob.
 const char* SatelliteGlowFragmentShader()
 {
     return R"(
@@ -103,7 +107,8 @@ const char* SatelliteGlowFragmentShader()
     )";
 }
 
-QVector3D TrailColorForSatellite(int satelliteIndex)
+// Gives each satellite trail a different color so the scene is easier to read at a glance.
+QVector3D TrailColorForSat(int satelliteIndex)
 {
     switch (satelliteIndex)
     {
@@ -116,7 +121,8 @@ QVector3D TrailColorForSatellite(int satelliteIndex)
     }
 }
 
-QVector3D GlowColorForSatellite(int satelliteIndex)
+// Same thing but for the little glow point that follows each satellite around.
+QVector3D GlowColorForSat(int satelliteIndex)
 {
     switch (satelliteIndex)
     {
@@ -130,6 +136,7 @@ QVector3D GlowColorForSatellite(int satelliteIndex)
 }
 }
 
+// Mouse wheel just pushes the camera in and out, then asks Qt for a redraw.
 void Orbitview::wheelEvent(QWheelEvent *event)
 {
     float zoomAmount = event->angleDelta().y() > 0 ? -0.5f : 0.5f;
@@ -139,11 +146,13 @@ void Orbitview::wheelEvent(QWheelEvent *event)
     update();
 }
 
+// Save the click position so drag rotation knows where it started from.
 void Orbitview::mousePressEvent(QMouseEvent* event)
 {
     lastMousePos = event->pos();
 }
 
+// Left-drag moves the camera yaw and pitch around the scene.
 void Orbitview::mouseMoveEvent(QMouseEvent* event)
 {
     QPoint delta = event->pos() - lastMousePos;
@@ -164,34 +173,37 @@ Orbitview::Orbitview(QWidget *parent) : QOpenGLWidget(parent)
     setMouseTracking(true);
 
     // Set the three orbit visuals here once so the scene and the backend names stay in sync.
+    // These numbers are mostly just our scene tuning knobs.
     satellites[0].name = "SAT_1";
-    satellites[0].visual.orbitRadius = 2.10f;
-    satellites[0].visual.orbitSpeed = 18.0f;
+    satellites[0].visual.orbitRadius = 1.60f;
+    satellites[0].visual.orbitSpeed = 0.40f;
     satellites[0].visual.orbitTiltDeg = 8.0f;
     satellites[0].visual.orbitPhaseDeg = 0.0f;
     satellites[0].visual.scale = 0.00002f;
 
     satellites[1].name = "SAT_2";
-    satellites[1].visual.orbitRadius = 2.55f;
-    satellites[1].visual.orbitSpeed = 13.0f;
+    satellites[1].visual.orbitRadius = 2.00f;
+    satellites[1].visual.orbitSpeed = 0.25f;
     satellites[1].visual.orbitTiltDeg = 28.0f;
     satellites[1].visual.orbitPhaseDeg = 120.0f;
     satellites[1].visual.scale = 0.00002f;
 
     satellites[2].name = "SAT_3";
-    satellites[2].visual.orbitRadius = 2.95f;
-    satellites[2].visual.orbitSpeed = 10.0f;
+    satellites[2].visual.orbitRadius = 2.40f;
+    satellites[2].visual.orbitSpeed = 0.15f;
     satellites[2].visual.orbitTiltDeg = -24.0f;
     satellites[2].visual.orbitPhaseDeg = 240.0f;
     satellites[2].visual.scale = 0.00002f;
 }
 
+// The UI tells us which satellite got clicked and we remember that here.
 void Orbitview::SetSelectedSatellite(const QString& satelliteName)
 {
     selectedSatelliteName = satelliteName;
     update();
 }
 
+// This lets the render side tint the selected satellite based on the link condition from the UI.
 void Orbitview::SetSatelliteLinkStatus(const QString& linkStatus)
 {
     satelliteLinkStatus = linkStatus;
@@ -253,6 +265,7 @@ void Orbitview::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    // Space is not really black here because plain black looked a little dead and boring.
     glClearColor(0.05f, 0.08f, 0.12f, 1.0f);
 
     // Build the shared shader once, then both Earth and satellite can use the same program.
@@ -445,6 +458,7 @@ void Orbitview::initializeGL()
 
 void Orbitview::resizeGL(int w, int h)
 {
+    // Keep the GL viewport the same size as the widget box Qt gives us.
     glViewport(0, 0, w, h);
 }
 
@@ -454,7 +468,7 @@ void Orbitview::paintGL()
     float frameStep = 1.0f / 60.0f;
 
     // Everybody moves every frame now, even before the operator clicks anything.
-    for (SatelliteRenderState& satelliteState : satellites)
+    for (SatRenderData& satelliteState : satellites)
     {
         satelliteState.visual.Update(frameStep);
     }
@@ -505,27 +519,26 @@ void Orbitview::paintGL()
 
     earthMesh.Draw(program, 0, "uDayMap");
 
-    // Now loop all satellites so they are always visible in the scene.
+    bool hasSelection = !selectedSatelliteName.isEmpty();
+
+    // Now loop all satellites. If one is selected, the others sit out so the view stays clean.
     for (int satelliteIndex = 0; satelliteIndex < static_cast<int>(satellites.size()); ++satelliteIndex)
     {
-        SatelliteRenderState& satelliteState = satellites[satelliteIndex];
+        SatRenderData& satelliteState = satellites[satelliteIndex];
         SatelliteVisual& satelliteVisual = satelliteState.visual;
+        bool isSelected = satelliteState.name == selectedSatelliteName;
+
+        if (hasSelection && !isSelected)
+        {
+            continue;
+        }
 
         QMatrix4x4 satelliteModel = satelliteVisual.GetModelMatrix();
         QMatrix4x4 satelliteMvp = projection * view * satelliteModel;
         QMatrix3x3 satelliteNormalMatrix = satelliteModel.normalMatrix();
 
-        bool isSelected = !selectedSatelliteName.isEmpty() && satelliteState.name == selectedSatelliteName;
-
-        QVector3D trailColor = TrailColorForSatellite(satelliteIndex);
-        QVector3D glowColor = GlowColorForSatellite(satelliteIndex);
-
-        // If nothing is selected, keep everyone readable. If one is selected, dim the others a bit.
-        if (!selectedSatelliteName.isEmpty() && !isSelected)
-        {
-            trailColor *= 0.40f;
-            glowColor *= 0.40f;
-        }
+        QVector3D trailColor = TrailColorForSat(satelliteIndex);
+        QVector3D glowColor = GlowColorForSat(satelliteIndex);
 
         if (isSelected)
         {

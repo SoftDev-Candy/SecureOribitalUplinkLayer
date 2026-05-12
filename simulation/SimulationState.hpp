@@ -5,6 +5,17 @@
 #ifndef SOUL_SIMULATIONSTATE_HPP
 #define SOUL_SIMULATIONSTATE_HPP
 #include"../Common/TelemetryFrame.hpp"
+#include <optional>
+
+// This is the simple mood board for a satellite.
+// Each mode nudges the telemetry in a different direction.
+enum class SatelliteMode
+{
+    Nominal,
+    PowerDrain,
+    Overheating,
+    SignalLoss
+};
 
 //FIXME - Everything is public for now if time we hide more
 class SimulationState
@@ -23,13 +34,26 @@ private:
     // drift_per_frame says how much the temperature moves every tick.
     float battery_drain_per_frame{};
     float temperature_drift_per_frame{};
+    // mode is the headline behavior for this satellite.
+    // tick_counter helps us fake periodic events like signal loss.
+    // signal_loss_ticks_left is the little countdown for "skip the next few sends".
+    SatelliteMode mode = SatelliteMode::Nominal;
+    int tick_counter = 0;
+    int signal_loss_ticks_left = 0;
 
 public:
     // Builds one small satellite state machine with its own starting health values and drift behavior.
-    SimulationState(const std::string& id, float bat, float temp, float batteryDrainPerFrame = 1.0f, float temperatureDriftPerFrame = -0.02f);
+    SimulationState(
+        const std::string& id,
+        float bat,
+        float temp,
+        SatelliteMode satMode = SatelliteMode::Nominal,
+        float batteryDrainPerFrame = 1.0f,
+        float temperatureDriftPerFrame = -0.02f);
 
-    // Generates the next telemetry frame after applying the simple battery/temperature behavior for this satellite.
-    TelemetryFrame MakeNextFrame();
+    // Generates the next telemetry frame after applying the simple behavior rules.
+    // If we are faking signal loss right now, this can return no frame for this tick.
+    std::optional<TelemetryFrame> MakeNextFrame();
 
 };
 
