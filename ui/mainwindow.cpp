@@ -138,6 +138,7 @@ mainwindow::mainwindow(QWidget *parent)
 
     ConfigureTelemetryTable();
     ConfigureSatelliteTable();
+    ApplyUiPolish();
 
     noSatelliteLabel = new QLabel("No active satellite connection", this);
     noSatelliteLabel->setGeometry(16, 20, 260, 24);
@@ -201,6 +202,49 @@ void mainwindow::ConfigureTelemetryTable()
     ui->DatabaseTable->horizontalHeader()->setDefaultSectionSize(120);
     ui->DatabaseTable->horizontalHeader()->setStretchLastSection(true);
     ui->DatabaseTable->setCursor(Qt::ArrowCursor);
+}
+
+void mainwindow::ApplyUiPolish()
+{
+    // Just enough styling so the panels feel a bit more mission-control and a bit less default-widget-core.
+    const QString tableStyle =
+        "QTableWidget {"
+        " background-color: rgba(8, 14, 24, 210);"
+        " color: rgb(232, 238, 245);"
+        " gridline-color: rgba(120, 150, 180, 70);"
+        " border: 1px solid rgba(120, 150, 180, 90);"
+        " border-radius: 10px;"
+        " selection-background-color: rgba(72, 145, 220, 160);"
+        " selection-color: white;"
+        "}"
+        "QHeaderView::section {"
+        " background-color: rgba(20, 30, 46, 220);"
+        " color: rgb(226, 234, 244);"
+        " border: none;"
+        " padding: 6px;"
+        " font-weight: 600;"
+        "}";
+
+    ui->SatelliteTable->setStyleSheet(tableStyle);
+    ui->DatabaseTable->setStyleSheet(tableStyle);
+
+    ui->layoutWidget->setAttribute(Qt::WA_StyledBackground, true);
+    ui->layoutWidget_2->setAttribute(Qt::WA_StyledBackground, true);
+
+    const QString panelStyle =
+        "QWidget {"
+        " background-color: rgba(8, 14, 24, 170);"
+        " border: 1px solid rgba(120, 150, 180, 90);"
+        " border-radius: 12px;"
+        "}"
+        "QLabel {"
+        " color: rgb(232, 238, 245);"
+        " background: transparent;"
+        " border: none;"
+        "}";
+
+    ui->layoutWidget->setStyleSheet(panelStyle);
+    ui->layoutWidget_2->setStyleSheet(panelStyle);
 }
 
 void mainwindow::PopulateSatelliteTable()
