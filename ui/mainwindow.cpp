@@ -144,15 +144,18 @@ mainwindow::mainwindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // Build the two tables first so the rest of the refresh code has a sane place to drop data.
     ConfigureTelemetryTable();
     ConfigureSatelliteTable();
     StyleTheUi();
 
+    // This label is our "hey nothing is connected right now" message.
     noSatelliteLabel = new QLabel("No active satellite connection", this);
     noSatelliteLabel->setGeometry(16, 20, 260, 24);
     noSatelliteLabel->setStyleSheet("color: rgb(235, 235, 235); font-weight: 600;");
     noSatelliteLabel->hide();
 
+    // Clicking a satellite row is what wakes up the detail panel and the 3D selection.
     connect(ui->SatelliteTable, &QTableWidget::cellClicked, this, &mainwindow::OnSatelliteRowClicked);
 
     // Tiny clock goblin that keeps poking the UI once a second.
@@ -168,6 +171,7 @@ mainwindow::~mainwindow()
     delete ui;
 }
 
+// Sets up the top table that lists the latest known state for each satellite.
 void mainwindow::ConfigureSatelliteTable()
 {
     ui->SatelliteTable->setColumnCount(4);
@@ -186,6 +190,7 @@ void mainwindow::ConfigureSatelliteTable()
     ui->SatelliteTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
+// Sets up the lower telemetry history table for the currently selected satellite.
 void mainwindow::ConfigureTelemetryTable()
 {
     ui->DatabaseTable->setColumnCount(10);
@@ -212,6 +217,7 @@ void mainwindow::ConfigureTelemetryTable()
     ui->DatabaseTable->setCursor(Qt::ArrowCursor);
 }
 
+// Gives the widgets a cleaner mission-control look without messing with the actual UI layout too much.
 void mainwindow::StyleTheUi()
 {
     // Just enough styling so the panels feel a bit more mission-control and a bit less default-widget-core.
@@ -274,6 +280,7 @@ void mainwindow::StyleTheUi()
     ui->Temp_StatusLayout->setAlignment(Qt::AlignHCenter);
 }
 
+// Fills the top satellite table using the newest telemetry row we have for each satellite.
 void mainwindow::PopulateSatelliteTable()
 {
     ui->SatelliteTable->setRowCount(satellites.size());
@@ -292,15 +299,18 @@ void mainwindow::PopulateSatelliteTable()
     }
 }
 
+// Loads the recent packet history for whichever satellite the operator clicked on.
 void mainwindow::PopulateTelemetryTable()
 {
     ui->DatabaseTable->setRowCount(0);
 
+    // No selected satellite means no detail history yet, so we quietly bail out.
     if (selectedSatelliteName.isEmpty())
     {
         return;
     }
 
+    // Use the same DB path the refresh loop picked, otherwise we might read from the wrong random build folder copy.
     const QString dbpath = !activeDatabasePath.isEmpty() ? activeDatabasePath : ResolveDatabasePath();
     if (dbpath.isEmpty())
     {
@@ -369,6 +379,7 @@ void mainwindow::PopulateTelemetryTable()
     sqlite3_close(DB);
 }
 
+// Pushes the clicked satellite into the labels, telemetry table, and OrbitView.
 void mainwindow::ApplySelectedSatellite()
 {
     if (selectedSatelliteName.isEmpty())
@@ -377,6 +388,7 @@ void mainwindow::ApplySelectedSatellite()
         return;
     }
 
+    // Walk the cached list until we find the one the user asked for.
     for (int row = 0; row < satellites.size(); ++row)
     {
         const SatelliteRow& sat = satellites[row];
@@ -416,6 +428,7 @@ void mainwindow::ApplySelectedSatellite()
     ShowNoSelectionState();
 }
 
+// This is the "backend is asleep or empty" state where we hide the juicy telemetry stuff.
 void mainwindow::ShowNoTelemetryState()
 {
     ui->SatelliteTable->setEnabled(false);
@@ -446,6 +459,7 @@ void mainwindow::ShowNoTelemetryState()
     activeDatabasePath.clear();
 }
 
+// This is the middle state: telemetry exists, but the user has not picked a satellite yet.
 void mainwindow::ShowNoSelectionState()
 {
     ui->SatelliteTable->setEnabled(true);
@@ -472,6 +486,7 @@ void mainwindow::ShowNoSelectionState()
     }
 }
 
+// Makes the detail widgets visible again once a real satellite selection happens.
 void mainwindow::ShowTelemetryState()
 {
     ui->SatelliteTable->setEnabled(true);
@@ -486,6 +501,7 @@ void mainwindow::ShowTelemetryState()
     }
 }
 
+// Row click handler for the satellite list. Nice and tiny on purpose.
 void mainwindow::OnSatelliteRowClicked(int row, int column)
 {
     Q_UNUSED(column)
@@ -499,12 +515,15 @@ void mainwindow::OnSatelliteRowClicked(int row, int column)
     ApplySelectedSatellite();
 }
 
+// This is the heartbeat of the window. Every tick we re-read the newest per-satellite state from SQLite.
 void mainwindow::RefreshTelemetryView()
 {
+    // Start fresh each pass so the tables always reflect what is actually in the DB right now.
     satellites.clear();
     ui->SatelliteTable->setRowCount(0);
     ui->DatabaseTable->setRowCount(0);
 
+    // Figure out which Soul.db is the live one, because Qt build folders love making clones everywhere.
     activeDatabasePath = ResolveDatabasePath();
     const QString dbpath = activeDatabasePath;
     if (dbpath.isEmpty())
@@ -542,6 +561,7 @@ void mainwindow::RefreshTelemetryView()
     {
         qint64 currentTime = NowMs();
 
+        // Each row here is already "latest row for a satellite", so this becomes the top selection list.
         while (sqlite3_step(stmt) == SQLITE_ROW)
         {
             const unsigned char* satName = sqlite3_column_text(stmt, 0);
@@ -579,6 +599,7 @@ void mainwindow::RefreshTelemetryView()
 
     PopulateSatelliteTable();
 
+    // Try to preserve the current selection if that satellite still exists in the fresh query result.
     int selectedRow = -1;
     for (int row = 0; row < satellites.size(); ++row)
     {
@@ -610,6 +631,7 @@ void mainwindow::RefreshTelemetryView()
     ApplySelectedSatellite();
 }
 
+// Hunts down the real Soul.db file instead of blindly trusting one build folder copy.
 QString mainwindow::ResolveDatabasePath() const
 {
     const QString appDirDb = QDir(QCoreApplication::applicationDirPath()).filePath("Soul.db");
@@ -633,6 +655,7 @@ QString mainwindow::ResolveDatabasePath() const
     QDateTime bestWithRowsTime;
     QDateTime bestEmptyTime;
 
+    // We check a few likely places, then prefer the newest DB that actually has telemetry rows in it.
     for (const QString& path : candidates)
     {
         QFileInfo info(path);
@@ -709,6 +732,7 @@ QString mainwindow::ResolveDatabasePath() const
     return bestEmptyPath;
 }
 
+// Placeholder for later if database setup gets moved out of the window class.
 const char * mainwindow::LoadDatabase()
 {
     //FIXME  - Separate database logic later here //
