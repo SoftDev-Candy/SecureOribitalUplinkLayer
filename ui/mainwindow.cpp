@@ -260,24 +260,49 @@ void mainwindow::StyleTheUi()
     ui->layoutWidget->setStyleSheet(panelStyle);
     ui->layoutWidget_2->setStyleSheet(panelStyle);
 
-    // These help keep the left and right info stacks visually centered inside their own little cards.
-    ui->SatelliteData_Left->setContentsMargins(12, 12, 12, 12);
-    ui->SatelliteData_Right->setContentsMargins(12, 12, 12, 12);
-    ui->SatelliteData_Left->setSpacing(8);
+    // Put the cards back into a clean two-column feel instead of the fully centered look.
+    ui->SatelliteData_Left->setContentsMargins(14, 14, 14, 14);
+    ui->SatelliteData_Right->setContentsMargins(14, 14, 14, 14);
+    ui->SatelliteData_Left->setSpacing(10);
     ui->SatelliteData_Right->setSpacing(12);
-    ui->SatelliteData_Left->setAlignment(Qt::AlignCenter);
-    ui->SatelliteData_Right->setAlignment(Qt::AlignCenter);
+    ui->SatelliteData_Left->setAlignment(Qt::AlignTop);
+    ui->SatelliteData_Right->setAlignment(Qt::AlignTop);
 
-    // Center each row too so the text does not lean awkwardly to one side.
-    ui->SatelliteName_Layout->setAlignment(Qt::AlignHCenter);
-    ui->LinkStatus_Layout->setAlignment(Qt::AlignHCenter);
-    ui->PacketLoss_Layout->setAlignment(Qt::AlignHCenter);
-    ui->Latency_Layout->setAlignment(Qt::AlignHCenter);
-    ui->Battery_Layout->setAlignment(Qt::AlignHCenter);
-    ui->Temprature_Layout->setAlignment(Qt::AlignHCenter);
-    ui->Battery_StatusLayout->setAlignment(Qt::AlignHCenter);
-    ui->Health_StatusLayout->setAlignment(Qt::AlignHCenter);
-    ui->Temp_StatusLayout->setAlignment(Qt::AlignHCenter);
+    ui->SatelliteName_Layout->setAlignment(Qt::AlignLeft);
+    ui->LinkStatus_Layout->setAlignment(Qt::AlignLeft);
+    ui->PacketLoss_Layout->setAlignment(Qt::AlignLeft);
+    ui->Latency_Layout->setAlignment(Qt::AlignLeft);
+    ui->Battery_Layout->setAlignment(Qt::AlignLeft);
+    ui->Temprature_Layout->setAlignment(Qt::AlignLeft);
+    ui->Battery_StatusLayout->setAlignment(Qt::AlignLeft);
+    ui->Health_StatusLayout->setAlignment(Qt::AlignLeft);
+    ui->Temp_StatusLayout->setAlignment(Qt::AlignLeft);
+
+    // Give the headers a fixed-ish width so the value labels line up like a neat little status grid.
+    ui->SatelliteName_Header->setMinimumWidth(96);
+    ui->LinkStatus_Header->setMinimumWidth(96);
+    ui->PacketLoss_Header->setMinimumWidth(96);
+    ui->Latency_Header->setMinimumWidth(96);
+    ui->Battery_Header->setMinimumWidth(96);
+    ui->Latency_Header_3->setMinimumWidth(96);
+    ui->Battery_StatusHeader->setMinimumWidth(108);
+    ui->Health_StatusHeader->setMinimumWidth(108);
+    ui->Temp_StatusHeader->setMinimumWidth(108);
+
+    ui->SatelliteName_Label->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->LinkStatus_Connection->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->PacketLoss_Connection->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->Latency_Data->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->Battery_Data->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->Temprature_Data->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->Battery_StatusData->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->Health_StatusData->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    ui->Temp_StatusData->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+
+    // A couple header names were funky, so this puts them back into something more readable.
+    ui->Battery_StatusHeader->setText("Battery :");
+    ui->Health_StatusHeader->setText("Health :");
+    ui->Temp_StatusHeader->setText("Temp :");
 }
 
 // Fills the top satellite table using the newest telemetry row we have for each satellite.
