@@ -27,11 +27,18 @@ public:
     void Destroy();
 
 private:
+    // Raw packed mesh data from the OBJ loader. It hangs around mostly so reload/debug stuff is easier later.
     MeshData mesh;
+
+    // VAO remembers the layout, VBO stores the packed vertices, and EBO stores the triangle indices.
     QOpenGLVertexArrayObject vao;
     QOpenGLBuffer vbo{QOpenGLBuffer::VertexBuffer};
     QOpenGLBuffer ebo{QOpenGLBuffer::IndexBuffer};
+
+    // One texture for this mesh. Nice and simple, no material chaos today.
     QOpenGLTexture* texture = nullptr;
+
+    // Draw count for glDrawElements so we do not have to do weird math every frame.
     int indexCount = 0;
 };
 
