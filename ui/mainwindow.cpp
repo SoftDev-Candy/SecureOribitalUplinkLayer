@@ -143,6 +143,8 @@ mainwindow::mainwindow(QWidget *parent)
     , ui(new Ui::mainwindow)
 {
     ui->setupUi(this);
+    resize(1280, 860);
+    setMinimumSize(1280, 860);
 
     // Build the two tables first so the rest of the refresh code has a sane place to drop data.
     ConfigureTelemetryTable();
