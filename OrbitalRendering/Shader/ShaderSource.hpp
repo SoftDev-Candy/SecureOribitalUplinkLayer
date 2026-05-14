@@ -41,6 +41,7 @@ const char* VertexShader()
 // Fragment shader for the textured planet/satellite pass.
 // For Earth we use both day and night maps.
 // For satellites we just bind the same texture slot to both uniforms and move on with life.
+// TODO: Split this into a dedicated Earth shader and a dedicated satellite shader later.
 const char* FragmentShader()
 {
     return R"(
@@ -57,11 +58,15 @@ const char* FragmentShader()
 
         uniform vec3 uSunDir;
         uniform vec3 uViewPos;
+        uniform float uAmbientFloor;
+        uniform float uNightStrength;
+        uniform float uNightBlend;
 
         void main()
         {
             vec3 N = normalize(vNormal);
             // The light/night split looked backwards in this scene, so use the sun direction directly here.
+            // Not the most NASA-level solution, but it keeps the vibes correct for now.
             vec3 L = normalize(uSunDir);
 
             float lightAmount = dot(N, L);
@@ -71,11 +76,13 @@ const char* FragmentShader()
             vec3 nightColor = texture(uNightMap, vUV).rgb;
 
             float diffuse = clamp(lightAmount, 0.0, 1.0);
-            vec3 litDay = dayColor * (0.20 + 0.80 * diffuse);
-            vec3 litNight = clamp(nightColor * 4.6, 0.0, 1.0);
-            vec3 earthColor = mix(litNight, litDay, dayAmount);
+            vec3 litDay = dayColor * (uAmbientFloor + (1.0 - uAmbientFloor) * diffuse);
+            vec3 litNight = clamp(nightColor * uNightStrength, 0.0, 1.0);
+            vec3 planetBlend = mix(litNight, litDay, dayAmount);
+            vec3 finalColor = mix(litDay, planetBlend, uNightBlend);
 
-            FragColor = vec4(earthColor, 1.0);
+            // Keep alpha hard-set to 1 so Earth does not randomly go ghost mode again. Big nah.
+            FragColor = vec4(finalColor, 1.0);
         }
     )";
 }
