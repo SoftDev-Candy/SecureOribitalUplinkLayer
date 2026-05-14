@@ -14,9 +14,6 @@
    <string>Form</string>
   </property>
   <widget class="QWidget" name="layoutWidget">
-   <property name="visible">
-    <bool>false</bool>
-   </property>
    <property name="geometry">
     <rect>
      <x>15</x>
@@ -24,6 +21,9 @@
      <width>171</width>
      <height>201</height>
     </rect>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
    <layout class="QVBoxLayout" name="SatelliteData_Left">
     <item>
@@ -137,9 +137,6 @@
    </layout>
   </widget>
   <widget class="QWidget" name="layoutWidget_2">
-   <property name="visible">
-    <bool>false</bool>
-   </property>
    <property name="geometry">
     <rect>
      <x>833</x>
@@ -147,6 +144,9 @@
      <width>223</width>
      <height>201</height>
     </rect>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
    </property>
    <layout class="QVBoxLayout" name="SatelliteData_Right">
     <item>
@@ -297,10 +297,7 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="Orbitview" name="OrbitView" native="true">
-     <widget class="QTableWidget" name="DatabaseTable">
-       <property name="visible">
-        <bool>false</bool>
-       </property>
+      <widget class="QTableWidget" name="DatabaseTable">
        <property name="geometry">
         <rect>
          <x>70</x>
@@ -328,6 +325,9 @@
        </property>
        <property name="cursor" stdset="0">
         <cursorShape>ArrowCursor</cursorShape>
+       </property>
+       <property name="visible">
+        <bool>false</bool>
        </property>
        <property name="layoutDirection">
         <enum>Qt::LayoutDirection::LeftToRight</enum>

@@ -34,14 +34,10 @@ return view;
 
 QMatrix4x4 Camera::GetProjectionMatrix(float aspect) const
 {
-    //Need a child class because it's not static so cant be called without its baby
+    // Same camera lens as before. Keeping it simple again.
     QMatrix4x4 projection;
-
-    //Basically sets the projection to an identity matrix
     projection.setToIdentity();
-
-    //Return perspective
-     projection.perspective(cam_fov, aspect, 0.1f, 100.0f);
+    projection.perspective(cam_fov, aspect, 0.1f, 100.0f);
     return projection;
 }
 
